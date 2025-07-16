@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">lumatrip</string>
+    <string name="title_activity_main">lumatrip</string>
+    <string name="package_name">com.lumatrip.app</string>
+    <string name="custom_url_scheme">com.lumatrip.app</string>
+</resources>

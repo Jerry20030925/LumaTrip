@@ -1,0 +1,18 @@
+{
+  "welcome": "歡迎來到 LumaTrip",
+  "login": "登入",
+  "register": "註冊",
+  "home": "首頁",
+  "messages": "訊息",
+  "profile": "個人資料",
+  "settings": "設定",
+  "all_rights_reserved": "版權所有",
+  "about": "關於",
+  "privacy_policy": "隱私權政策",
+  "terms_of_service": "服務條款",
+  "email": "電子郵件",
+  "password": "密碼",
+  "confirm_password": "確認密碼",
+  "passwords_do_not_match": "密碼不相符",
+  "logout": "登出"
+}

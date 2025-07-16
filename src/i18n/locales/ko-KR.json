@@ -1,0 +1,18 @@
+{
+  "welcome": "LumaTrip에 오신 것을 환영합니다",
+  "login": "로그인",
+  "register": "등록",
+  "home": "홈",
+  "messages": "메시지",
+  "profile": "프로필",
+  "settings": "설정",
+  "all_rights_reserved": "모든 권리 보유",
+  "about": "소개",
+  "privacy_policy": "개인 정보 정책",
+  "terms_of_service": "서비스 약관",
+  "email": "이메일",
+  "password": "비밀번호",
+  "confirm_password": "비밀번호 확인",
+  "passwords_do_not_match": "비밀번호가 일치하지 않습니다",
+  "logout": "로그아웃"
+}

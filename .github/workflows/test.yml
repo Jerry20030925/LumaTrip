@@ -1,0 +1,447 @@
+name: LumaTrip CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # 每天凌晨 2 点运行一次
+    - cron: '0 2 * * *'
+
+env:
+  NODE_VERSION: '18'
+  CACHE_KEY: 'node-modules'
+
+jobs:
+  # 代码质量检查
+  code-quality:
+    name: 代码质量检查
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 安装依赖
+      run: npm ci
+      
+    - name: ESLint 检查
+      run: npm run lint
+      continue-on-error: true
+      
+    - name: TypeScript 类型检查
+      run: npx tsc --noEmit
+      
+    - name: 代码格式检查
+      run: npm run format:check
+      continue-on-error: true
+
+  # 单元测试
+  unit-tests:
+    name: 单元测试
+    runs-on: ubuntu-latest
+    needs: code-quality
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 安装依赖
+      run: npm ci
+      
+    - name: 运行单元测试
+      run: npm run test -- --coverage --reporter=json --outputFile=test-results.json
+      
+    - name: 上传测试覆盖率
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        
+    - name: 上传测试结果
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: unit-test-results
+        path: |
+          test-results.json
+          coverage/
+
+  # E2E 测试
+  e2e-tests:
+    name: E2E 测试
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    
+    strategy:
+      matrix:
+        browser: [chrome, firefox, edge]
+        
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 安装依赖
+      run: npm ci
+      
+    - name: 构建项目
+      run: npm run build
+      
+    - name: 启动开发服务器
+      run: npm run preview &
+      
+    - name: 等待服务器启动
+      run: npx wait-on http://localhost:4173
+      
+    - name: 运行 Cypress E2E 测试
+      uses: cypress-io/github-action@v6
+      with:
+        browser: ${{ matrix.browser }}
+        start: npm run preview
+        wait-on: 'http://localhost:4173'
+        wait-on-timeout: 120
+        record: true
+        parallel: true
+      env:
+        CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: 上传 Cypress 截图
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: cypress-screenshots-${{ matrix.browser }}
+        path: cypress/screenshots
+        
+    - name: 上传 Cypress 视频
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: cypress-videos-${{ matrix.browser }}
+        path: cypress/videos
+
+  # 性能测试
+  performance-tests:
+    name: 性能测试
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 安装依赖
+      run: npm ci
+      
+    - name: 构建项目
+      run: npm run build
+      
+    - name: 启动预览服务器
+      run: npm run preview &
+      
+    - name: 等待服务器启动
+      run: npx wait-on http://localhost:4173
+      
+    - name: 安装 Lighthouse CI
+      run: npm install -g @lhci/cli@0.12.x
+      
+    - name: 运行 Lighthouse CI
+      run: lhci autorun
+      env:
+        LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+        
+    - name: 运行自定义性能测试
+      run: node scripts/performance-test.js
+      
+    - name: 上传性能报告
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-reports
+        path: |
+          .lighthouseci/
+          performance-report.html
+
+  # 压力测试
+  load-tests:
+    name: 压力测试
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 安装依赖
+      run: npm ci
+      
+    - name: 构建项目
+      run: npm run build
+      
+    - name: 启动预览服务器
+      run: npm run preview &
+      
+    - name: 等待服务器启动
+      run: npx wait-on http://localhost:4173
+      
+    - name: 安装 Artillery
+      run: npm install -g artillery@latest
+      
+    - name: 运行压力测试
+      run: artillery run artillery-config.yml --output load-test-results.json
+      
+    - name: 上传压力测试报告
+      uses: actions/upload-artifact@v3
+      with:
+        name: load-test-results
+        path: |
+          load-test-results.json
+          artillery-report.html
+
+  # 安全扫描
+  security-scan:
+    name: 安全扫描
+    runs-on: ubuntu-latest
+    needs: code-quality
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置 Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: 安装依赖
+      run: npm ci
+      
+    - name: 运行 npm audit
+      run: npm audit --audit-level=high
+      continue-on-error: true
+      
+    - name: 运行 Snyk 安全扫描
+      uses: snyk/actions/node@master
+      continue-on-error: true
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        
+    - name: CodeQL 分析
+      uses: github/codeql-action/analyze@v2
+      with:
+        languages: javascript
+
+  # 构建测试
+  build-test:
+    name: 构建测试
+    runs-on: ubuntu-latest
+    needs: [unit-tests, e2e-tests]
+    
+    strategy:
+      matrix:
+        node-version: [16, 18, 20]
+        
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 设置 Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: 安装依赖
+      run: npm ci
+      
+    - name: 构建项目
+      run: npm run build
+      
+    - name: 检查构建大小
+      run: |
+        BUILD_SIZE=$(du -sh dist | cut -f1)
+        echo "构建大小: $BUILD_SIZE"
+        echo "BUILD_SIZE=$BUILD_SIZE" >> $GITHUB_ENV
+        
+    - name: 上传构建产物
+      uses: actions/upload-artifact@v3
+      if: matrix.node-version == 18
+      with:
+        name: build-artifacts
+        path: dist/
+        retention-days: 7
+
+  # 部署到 Staging
+  deploy-staging:
+    name: 部署到 Staging
+    runs-on: ubuntu-latest
+    needs: [build-test, performance-tests]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 下载构建产物
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+        path: dist/
+        
+    - name: 部署到 Vercel Staging
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        scope: ${{ secrets.VERCEL_ORG_ID }}
+        alias-domains: staging.lumatrip.com
+
+  # 部署到生产环境
+  deploy-production:
+    name: 部署到生产环境
+    runs-on: ubuntu-latest
+    needs: [build-test, performance-tests, load-tests, security-scan]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+      
+    - name: 下载构建产物
+      uses: actions/download-artifact@v3
+      with:
+        name: build-artifacts
+        path: dist/
+        
+    - name: 部署到 Vercel 生产环境
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
+        scope: ${{ secrets.VERCEL_ORG_ID }}
+        
+    - name: 发送部署通知
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+      if: always()
+
+  # 测试报告汇总
+  test-summary:
+    name: 测试报告汇总
+    runs-on: ubuntu-latest
+    needs: [unit-tests, e2e-tests, performance-tests, build-test]
+    if: always()
+    
+    steps:
+    - name: 下载所有测试结果
+      uses: actions/download-artifact@v3
+      
+    - name: 生成测试报告
+      run: |
+        echo "# LumaTrip 测试报告" > test-summary.md
+        echo "" >> test-summary.md
+        echo "**构建时间**: $(date)" >> test-summary.md
+        echo "**提交**: ${{ github.sha }}" >> test-summary.md
+        echo "**分支**: ${{ github.ref_name }}" >> test-summary.md
+        echo "" >> test-summary.md
+        echo "## 测试结果" >> test-summary.md
+        echo "" >> test-summary.md
+        
+        # 检查各项测试状态
+        if [ "${{ needs.unit-tests.result }}" == "success" ]; then
+          echo "- ✅ 单元测试: 通过" >> test-summary.md
+        else
+          echo "- ❌ 单元测试: 失败" >> test-summary.md
+        fi
+        
+        if [ "${{ needs.e2e-tests.result }}" == "success" ]; then
+          echo "- ✅ E2E测试: 通过" >> test-summary.md
+        else
+          echo "- ❌ E2E测试: 失败" >> test-summary.md
+        fi
+        
+        if [ "${{ needs.performance-tests.result }}" == "success" ]; then
+          echo "- ✅ 性能测试: 通过" >> test-summary.md
+        else
+          echo "- ❌ 性能测试: 失败" >> test-summary.md
+        fi
+        
+        if [ "${{ needs.build-test.result }}" == "success" ]; then
+          echo "- ✅ 构建测试: 通过" >> test-summary.md
+        else
+          echo "- ❌ 构建测试: 失败" >> test-summary.md
+        fi
+        
+    - name: 发布测试报告到 PR
+      uses: marocchino/sticky-pull-request-comment@v2
+      if: github.event_name == 'pull_request'
+      with:
+        recreate: true
+        path: test-summary.md
+        
+    - name: 上传测试报告
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-summary
+        path: test-summary.md
+
+  # 清理工作
+  cleanup:
+    name: 清理
+    runs-on: ubuntu-latest
+    needs: [test-summary]
+    if: always()
+    
+    steps:
+    - name: 清理旧的构建产物
+      uses: geekyeggo/delete-artifact@v2
+      with:
+        name: |
+          build-artifacts
+          unit-test-results
+        failOnError: false
+        
+    - name: 清理 Docker 缓存
+      run: docker system prune -f
+      continue-on-error: true
