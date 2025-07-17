@@ -1,0 +1,208 @@
+config:
+  target: 'http://localhost:5173'
+  phases:
+    # 预热阶段
+    - duration: 60
+      arrivalRate: 5
+      name: "预热阶段"
+    # 负载测试阶段
+    - duration: 300
+      arrivalRate: 20
+      name: "负载测试"
+    # 压力测试阶段
+    - duration: 120
+      arrivalRate: 50
+      name: "压力测试"
+    # 峰值测试阶段
+    - duration: 60
+      arrivalRate: 100
+      name: "峰值测试"
+  payload:
+    path: "./test-data.csv"
+    fields:
+      - "email"
+      - "password"
+      - "username"
+  defaults:
+    headers:
+      'Content-Type': 'application/json'
+      'User-Agent': 'Artillery Load Test'
+  processor: "./artillery-processor.js"
+
+scenarios:
+  # 用户注册流程
+  - name: "用户注册流程"
+    weight: 20
+    flow:
+      - get:
+          url: "/register"
+          capture:
+            - json: "$.csrfToken"
+              as: "csrfToken"
+      - think: 2
+      - post:
+          url: "/api/auth/register"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+            username: "{{ username }}"
+            csrfToken: "{{ csrfToken }}"
+          expect:
+            - statusCode: 201
+
+  # 用户登录流程
+  - name: "用户登录流程"
+    weight: 30
+    flow:
+      - get:
+          url: "/login"
+      - think: 1
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/discover"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+  # 浏览发现页
+  - name: "浏览发现页"
+    weight: 25
+    flow:
+      - get:
+          url: "/discover"
+      - think: 3
+      - get:
+          url: "/api/posts?page=1&limit=20"
+          expect:
+            - statusCode: 200
+      - think: 2
+      - get:
+          url: "/api/posts?page=2&limit=20"
+
+  # 发布帖子流程
+  - name: "发布帖子流程"
+    weight: 15
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      - think: 5
+      - post:
+          url: "/api/posts"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            content: "这是一个测试帖子 {{ $randomString() }}"
+            location: "测试地点"
+            tags: ["测试", "压力测试"]
+          expect:
+            - statusCode: 201
+
+  # 消息功能测试
+  - name: "消息功能测试"
+    weight: 10
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      - get:
+          url: "/api/messages"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+      - think: 2
+      - post:
+          url: "/api/messages"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            receiverId: "{{ $randomInt(1, 1000) }}"
+            content: "测试消息 {{ $randomString() }}"
+            type: "text"
+
+# 性能指标阈值
+expect:
+  thresholds:
+    - http.response_time:
+        p95: 500  # 95%的请求响应时间小于500ms
+        p99: 1000 # 99%的请求响应时间小于1000ms
+    - http.request_rate: 50  # 每秒至少50个请求
+    - http.codes.200: 95     # 95%的请求返回200状态码
+    - http.codes.4xx: 2      # 4xx错误率小于2%
+    - http.codes.5xx: 1      # 5xx错误率小于1%
+
+# 插件配置
+plugins:
+  expect: {}
+  metrics-by-endpoint: {}
+  hls:
+    target: 'ws://localhost:5173'
+    scenarios:
+      - name: "WebSocket连接测试"
+        weight: 100
+        engine: ws
+        flow:
+          - connect:
+              target: "ws://localhost:5173/ws"
+          - send:
+              payload: '{"type":"ping"}'
+          - think: 1
+          - send:
+              payload: '{"type":"message","data":"测试消息"}'
+          - think: 2
+
+# 报告配置
+reporting:
+  output:
+    - type: json
+      path: "./artillery-reports/report-{{ timestamp }}.json"
+    - type: html
+      path: "./artillery-reports/report-{{ timestamp }}.html"
+  
+# 环境变量
+environments:
+  development:
+    target: 'http://localhost:5173'
+    phases:
+      - duration: 60
+        arrivalRate: 10
+  
+  staging:
+    target: 'https://staging.lumatrip.com'
+    phases:
+      - duration: 300
+        arrivalRate: 30
+  
+  production:
+    target: 'https://lumatrip.com'
+    phases:
+      - duration: 600
+        arrivalRate: 100
+        maxVusers: 500
+
+# 自定义指标
+custom:
+  metrics:
+    - name: "登录成功率"
+      unit: "percent"
+    - name: "帖子发布成功率"
+      unit: "percent"
+    - name: "消息发送成功率"
+      unit: "percent"
