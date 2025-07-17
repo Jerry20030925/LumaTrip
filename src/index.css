@@ -3,15 +3,15 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
+  color-scheme: light;
+  color: #111827;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* LumaTrip Design System Colors */
+  /* LumaTrip Design System Colors - Light Theme */
   --primary-blue: #3B82F6;
   --secondary-green: #10B981;
   --background-gray: #F9FAFB;
@@ -89,6 +89,47 @@
   --radius-full: 50%;
 }
 
+/* Dark theme variables */
+:root.dark {
+  color-scheme: dark;
+  color: #F9FAFB;
+  
+  /* LumaTrip Design System Colors - Dark Theme */
+  --primary-blue: #60A5FA;
+  --secondary-green: #34D399;
+  --background-gray: #111827;
+  --card-white: #1F2937;
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --border-gray: #374151;
+  
+  /* Messages UI Colors - Dark */
+  --message-sent: #60A5FA;
+  --message-received: #374151;
+  --message-system: #6B7280;
+  --unread-red: #F87171;
+  --online-green: #34D399;
+  --typing-blue: #60A5FA;
+  
+  /* Profile UI Colors - Dark */
+  --profile-primary: #60A5FA;
+  --profile-secondary: #374151;
+  --profile-accent: #A78BFA;
+  --profile-divider: #374151;
+  --profile-bg: #1F2937;
+  
+  /* Homepage Landing Colors - Dark */
+  --homepage-primary: #60A5FA;
+  --homepage-primary-dark: #3B82F6;
+  --homepage-primary-light: #93C5FD;
+  --homepage-gray-50: #111827;
+  --homepage-gray-100: #1F2937;
+  --homepage-gray-900: #F9FAFB;
+  --homepage-success: #34D399;
+  --homepage-warning: #FBBF24;
+  --homepage-error: #F87171;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -108,6 +149,9 @@ body {
   min-width: 320px;
   min-height: 100vh;
   overflow-x: hidden;
+  background-color: var(--background-gray);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {

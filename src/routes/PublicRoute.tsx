@@ -36,7 +36,7 @@ const PublicRoute = () => {
 
   // 如果已经登录，重定向到首页
   if (session) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/app/home" replace />;
   }
 
   return <Outlet />;

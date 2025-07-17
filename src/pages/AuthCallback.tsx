@@ -54,7 +54,7 @@ const AuthCallback: React.FC = () => {
           setSession(data.session);
           // 短暂延迟确保状态更新
           setTimeout(() => {
-            navigate('/home', { replace: true });
+            navigate('/app/home', { replace: true });
           }, 200);
         } else {
           console.log('No session found, access token:', !!accessToken);
@@ -68,7 +68,7 @@ const AuthCallback: React.FC = () => {
               const { data: sessionData } = await supabase.auth.getSession();
               if (sessionData.session) {
                 setSession(sessionData.session);
-                navigate('/home', { replace: true });
+                navigate('/app/home', { replace: true });
               } else if (retryCount < maxRetries) {
                 retryCount++;
                 console.log(`Retry ${retryCount} to get session`);

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Filter, Bell, Heart, MessageCircle, Bookmark, Share2, MapPin, MoreHorizontal, Play, Images } from 'lucide-react';
+import ThemeToggle from '../components/ui/ThemeToggle';
+import Logo from '../components/ui/Logo';
 import PostFilters from '../components/discover/PostFilters';
 import CreatePostModal from '../components/discover/CreatePostModal';
 import EmptyState from '../components/discover/EmptyState';
@@ -188,16 +190,12 @@ const Discover: React.FC = () => {
           <div className="flex items-center justify-between py-3">
             {/* 左侧 Logo */}
             <div className="flex items-center">
-              <button className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                <img 
-                  src="/luma-logo.svg" 
-                  alt="LumaTrip" 
-                  className="h-8 w-8"
-                />
-                <span className="text-xl font-bold" style={{ color: 'var(--primary-blue)' }}>
-                  LumaTrip
-                </span>
-              </button>
+              <Logo 
+                size="lg" 
+                variant="full" 
+                clickable={true} 
+                onClick={() => window.location.href = '/'}
+              />
             </div>
 
             {/* 中间搜索栏 */}
@@ -219,6 +217,9 @@ const Discover: React.FC = () => {
 
             {/* 右侧功能区 */}
             <div className="flex items-center space-x-3">
+              {/* 主题切换按钮 */}
+              <ThemeToggle />
+
               {/* 创建帖子按钮 */}
               <button
                 onClick={() => setShowCreateModal(true)}
@@ -232,11 +233,11 @@ const Discover: React.FC = () => {
 
               {/* 通知铃铛 */}
               <div className="relative">
-                <button className="inline-flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 hover:bg-gray-100">
+                <button className="inline-flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                   <Bell className="h-4 w-4" style={{ color: 'var(--text-secondary)' }} />
                 </button>
                 {/* 红点未读提示 */}
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-gray-800"></div>
               </div>
 
               {/* 用户头像 */}

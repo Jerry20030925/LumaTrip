@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, ArrowDown, Star, Heart, MessageCircle, Globe, Menu, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import Logo from '../components/ui/Logo';
 
 interface Destination {
   id: string;
@@ -204,19 +205,14 @@ const Home = () => {
         <div className="homepage-container-width">
           <div className="flex items-center justify-between h-[70px]">
             {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <Globe className="w-5 h-5 text-white" />
-              </div>
-              <h1 className="text-xl font-bold text-gray-900">LumaTrip</h1>
-            </div>
+            <Logo size="lg" variant="full" />
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-8">
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">发现</a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">目的地</a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">故事</a>
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">关于</a>
+              <a href="/app/discover" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">发现</a>
+              <a href="/app/search" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">目的地</a>
+              <a href="/app/messages" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">消息</a>
+              <a href="/app/profile" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">我的</a>
             </div>
 
             {/* Right Actions */}
@@ -224,12 +220,27 @@ const Home = () => {
               <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
                 <Globe className="w-5 h-5 text-gray-600" />
               </button>
-              <button className="btn-secondary px-4 py-2 text-sm hidden md:block">
-                登录
-              </button>
-              <button className="btn-primary px-4 py-2 text-sm">
-                注册
-              </button>
+              {user ? (
+                <div className="flex items-center gap-3">
+                  <div className="hidden md:flex items-center gap-2">
+                    <span className="text-sm text-gray-600">欢迎，{user.email}</span>
+                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-medium">
+                        {user.email?.[0]?.toUpperCase() || 'U'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <button className="btn-secondary px-4 py-2 text-sm hidden md:block">
+                    登录
+                  </button>
+                  <button className="btn-primary px-4 py-2 text-sm">
+                    注册
+                  </button>
+                </>
+              )}
               <button 
                 className="md:hidden p-2 rounded-full hover:bg-gray-100 transition-colors"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -260,14 +271,23 @@ const Home = () => {
               </button>
             </div>
             <div className="flex-1 p-4 space-y-4">
-              <a href="#" className="block text-lg font-medium text-gray-900 py-3 border-b">发现</a>
-              <a href="#" className="block text-lg font-medium text-gray-900 py-3 border-b">目的地</a>
-              <a href="#" className="block text-lg font-medium text-gray-900 py-3 border-b">故事</a>
-              <a href="#" className="block text-lg font-medium text-gray-900 py-3 border-b">关于</a>
+              <a href="/app/discover" className="block text-lg font-medium text-gray-900 py-3 border-b">发现</a>
+              <a href="/app/search" className="block text-lg font-medium text-gray-900 py-3 border-b">目的地</a>
+              <a href="/app/messages" className="block text-lg font-medium text-gray-900 py-3 border-b">消息</a>
+              <a href="/app/profile" className="block text-lg font-medium text-gray-900 py-3 border-b">我的</a>
             </div>
             <div className="p-4 border-t space-y-3">
-              <button className="w-full btn-secondary py-3">登录</button>
-              <button className="w-full btn-primary py-3">注册</button>
+              {user ? (
+                <div className="text-center">
+                  <p className="text-sm text-gray-600 mb-2">欢迎，{user.email}</p>
+                  <a href="/app/settings" className="w-full btn-secondary py-3 block text-center">设置</a>
+                </div>
+              ) : (
+                <>
+                  <button className="w-full btn-secondary py-3">登录</button>
+                  <button className="w-full btn-primary py-3">注册</button>
+                </>
+              )}
             </div>
           </div>
         </div>

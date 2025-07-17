@@ -5,6 +5,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/layout/LoadingSpinner';
 import { supabase } from './utils/supabaseClient';
 import useAuthStore from './stores/authStore';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 function App() {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -60,9 +61,11 @@ function App() {
   }
 
   return (
-    <ErrorBoundary>
-      <RouterProvider router={router} />
-    </ErrorBoundary>
+    <ThemeProvider>
+      <ErrorBoundary>
+        <RouterProvider router={router} />
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }
 

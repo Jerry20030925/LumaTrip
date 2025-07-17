@@ -14,6 +14,7 @@ import AuthCallback from '../pages/AuthCallback';
 import MapExample from '../pages/MapExample';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 const routes: RouteObject[] = [
   // Landing Page (no layout)
@@ -65,6 +66,35 @@ const routes: RouteObject[] = [
   {
     path: '/map-demo',
     element: <MapExample />,
+  },
+  // 捕获所有未匹配的路径
+  {
+    path: '*',
+    element: (
+      <ErrorBoundary>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          height: '100vh',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          textAlign: 'center'
+        }}>
+          <h1>404 - 页面未找到</h1>
+          <p>抱歉，您访问的页面不存在。</p>
+          <div style={{ marginTop: '20px' }}>
+            <a href="/" style={{ color: 'yellow', textDecoration: 'underline', marginRight: '20px' }}>
+              返回首页
+            </a>
+            <a href="/app/home" style={{ color: 'yellow', textDecoration: 'underline' }}>
+              前往主页
+            </a>
+          </div>
+        </div>
+      </ErrorBoundary>
+    ),
   },
 ];
 

@@ -30,6 +30,9 @@
     "load:test": "artillery run artillery-config.yml",
     "test:all": "./scripts/test-all.sh",
     "pre-deploy-check": "npm run lint && npm run type-check && npm run test:run && npm run build",
+    "pre-deploy": "./scripts/pre-deploy.sh",
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel",
     "analyze": "npm run build -- --analyze",
     "clean": "rm -rf dist coverage .nyc_output cypress/screenshots cypress/videos"
   },
@@ -51,6 +54,7 @@
     "@vercel/analytics": "^1.5.0",
     "browser-image-compression": "^2.0.2",
     "date-fns": "^4.1.0",
+    "framer-motion": "^11.2.6",
     "i18next": "^25.3.2",
     "i18next-browser-languagedetector": "^8.2.0",
     "lucide-react": "^0.525.0",
