@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import GoogleLoginButton from '../components/auth/GoogleLoginButton';
 import '../components/auth/Auth.css';
 
@@ -14,6 +15,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const errorParam = searchParams.get('error');
@@ -41,7 +43,7 @@ const Login: React.FC = () => {
 
     try {
       await login(email, password);
-      navigate('/home');
+      navigate('/app/home');
     } catch (err: any) {
       setError(err.message || t('error'));
     } finally {
@@ -88,15 +90,23 @@ const Login: React.FC = () => {
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group password-input-group">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder={t('password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="auth-input"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="password-toggle"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
 
             {error && <div className="auth-error">{error}</div>}
@@ -113,7 +123,7 @@ const Login: React.FC = () => {
           <div className="auth-footer">
             <p>
               {t('dont_have_account')}{' '}
-              <Link to="/register" className="auth-link">
+              <Link to="/app/register" className="auth-link">
                 {t('sign_up')}
               </Link>
             </p>

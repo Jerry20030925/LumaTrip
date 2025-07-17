@@ -3,6 +3,7 @@ import { Search, Plus, Filter, Bell, Heart, MessageCircle, Bookmark, Share2, Map
 import PostFilters from '../components/discover/PostFilters';
 import CreatePostModal from '../components/discover/CreatePostModal';
 import EmptyState from '../components/discover/EmptyState';
+import LocationBasedContent from '../components/location/LocationBasedContent';
 import { useAuth } from '../hooks/useAuth';
 
 interface Post {
@@ -183,7 +184,7 @@ const Discover: React.FC = () => {
     <div className="min-h-screen" style={{ backgroundColor: 'var(--background-gray)' }}>
       {/* 固定顶部导航栏 */}
       <div className="bg-white border-b shadow-sm sticky top-0 z-50" style={{ borderColor: 'var(--border-gray)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-3">
             {/* 左侧 Logo */}
             <div className="flex items-center">
@@ -255,7 +256,7 @@ const Discover: React.FC = () => {
 
         {/* 次级导航/筛选栏 */}
         <div className="bg-white border-b" style={{ borderColor: 'var(--border-gray)' }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between py-3">
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 filter-tabs">
                 {filterTabs.map((tab) => (
@@ -319,9 +320,22 @@ const Discover: React.FC = () => {
           </div>
         )}
 
+        {/* 附近内容 - 基于位置的推荐 */}
+        {activeFilter === '附近' && (
+          <div className="mb-6">
+            <LocationBasedContent 
+              title="附近的精彩推荐"
+              subtitle="发现您身边的美食、景点和活动"
+              showFilters={true}
+              defaultFilters={{ maxDistance: 25, minRating: 4.0 }}
+              className="animate-in slide-in-from-top duration-300"
+            />
+          </div>
+        )}
+
         {/* 瀑布流内容 */}
         <div className="transition-all duration-200">
-          {loading ? (
+          {activeFilter === '附近' ? null : loading ? (
             <div className="masonry-grid">
               {[...Array(12)].map((_, i) => (
                 <div key={i} className="animate-pulse stagger-animation" style={{ animationDelay: `${i * 0.05}s` }}>
@@ -342,7 +356,7 @@ const Discover: React.FC = () => {
                 </div>
               ))}
             </div>
-          ) : posts.length === 0 ? (
+          ) : activeFilter === '附近' ? null : posts.length === 0 ? (
             <EmptyState 
               type="discover" 
               onAction={() => setShowCreateModal(true)}

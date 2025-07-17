@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { AppShell, Container, Space } from '@mantine/core';
+import { AppShell } from '@mantine/core';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -8,7 +8,7 @@ const Layout = () => {
     <AppShell
       header={{ height: 60 }}
       footer={{ height: 60 }}
-      padding="md"
+      padding={0}
       style={{ 
         backgroundColor: 'transparent',
         background: 'none'
@@ -17,17 +17,11 @@ const Layout = () => {
       <Header />
       <AppShell.Main style={{ 
         backgroundColor: 'transparent',
-        background: 'none'
+        background: 'none',
+        padding: 0,
+        width: '100%'
       }}>
-        <Container style={{ 
-          backgroundColor: 'transparent',
-          background: 'none',
-          height: '100%'
-        }}>
-          <Space h="md" />
-          <Outlet />
-          <Space h="md" />
-        </Container>
+        <Outlet />
       </AppShell.Main>
       <Footer />
     </AppShell>

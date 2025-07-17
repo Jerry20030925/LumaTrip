@@ -71,6 +71,9 @@ const Header: React.FC = () => {
               <Anchor component={Link} to="/messages" style={navLinkStyle('/messages')}>
                 {t('messages')}
               </Anchor>
+              <Anchor component={Link} to="/app/map-example" style={navLinkStyle('/app/map-example')}>
+                地图
+              </Anchor>
               <Anchor component={Link} to={`/profile/${user?.id}`} style={navLinkStyle(`/profile/${user?.id}`)}>
                 {t('profile')}
               </Anchor>

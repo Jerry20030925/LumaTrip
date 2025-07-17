@@ -1,3 +1,16 @@
+export interface UserLocation {
+  latitude: number;
+  longitude: number;
+  accuracy?: number;
+  city: string;
+  state?: string;
+  country: string;
+  countryCode: string;
+  postalCode?: string;
+  address?: string;
+  lastUpdated: Date;
+}
+
 export interface UserProfile {
   id: string;
   username: string;
@@ -6,13 +19,19 @@ export interface UserProfile {
   avatar: string;
   coverImage?: string;
   bio?: string;
-  location?: string;
+  location?: string; // Keep for backward compatibility - city, country display
+  detailedLocation?: UserLocation; // New detailed location data
   website?: string;
   birthDate?: Date;
   joinDate: Date;
   isVerified: boolean;
   isPrivate: boolean;
   tags: string[];
+  locationPreferences?: {
+    shareLocation: boolean;
+    allowLocationBasedRecommendations: boolean;
+    locationAccuracy: 'city' | 'precise';
+  };
 }
 
 export interface UserStats {

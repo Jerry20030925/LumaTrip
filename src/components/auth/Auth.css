@@ -84,6 +84,37 @@
   margin-bottom: 20px;
 }
 
+.password-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.2s ease;
+  z-index: 2;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.password-toggle:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.password-toggle:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
 .auth-input {
   width: 100%;
   padding: 16px 20px;
@@ -94,6 +125,10 @@
   font-size: 16px;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+}
+
+.password-input-group .auth-input {
+  padding-right: 50px;
 }
 
 .auth-input::placeholder {

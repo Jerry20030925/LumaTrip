@@ -252,7 +252,7 @@ const Messages: React.FC = () => {
   };
 
   return (
-    <div className="flex overflow-hidden" style={{ height: 'calc(100vh - 64px)', backgroundColor: 'var(--background-gray)' }}>
+    <div className="flex w-full overflow-hidden" style={{ height: 'calc(100vh - 64px)', backgroundColor: 'var(--background-gray)' }}>
       {/* Left Sidebar - Chat List */}
       <div className={`${
         isMobile 

@@ -1,5 +1,6 @@
 import { createBrowserRouter, type RouteObject } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import LandingPage from '../pages/LandingPage';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
@@ -10,18 +11,24 @@ import Discover from '../pages/Discover';
 import SearchPage from '../components/search/SearchPage';
 import DebugPage from '../pages/DebugPage';
 import AuthCallback from '../pages/AuthCallback';
+import MapExample from '../pages/MapExample';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 
 const routes: RouteObject[] = [
+  // Landing Page (no layout)
   {
     path: '/',
+    element: <LandingPage />,
+  },
+  // App routes with layout
+  {
+    path: '/app',
     element: <Layout />,
     children: [
       {
         element: <PublicRoute />,
         children: [
-          { index: true, element: <Login /> },
           { path: 'login', element: <Login /> },
           { path: 'register', element: <Register /> },
         ],
@@ -38,6 +45,7 @@ const routes: RouteObject[] = [
           { path: 'profile/:userId', element: <Profile /> },
           { path: 'settings', element: <Settings /> },
           { path: 'search', element: <SearchPage /> },
+          { path: 'map-example', element: <MapExample /> },
           // { path: '/notifications', element: <Notifications /> },
         ],
       },
@@ -52,6 +60,11 @@ const routes: RouteObject[] = [
   {
     path: '/debug',
     element: <DebugPage />,
+  },
+  // 地图示例页面 - 不需要认证（方便演示）
+  {
+    path: '/map-demo',
+    element: <MapExample />,
   },
 ];
 
