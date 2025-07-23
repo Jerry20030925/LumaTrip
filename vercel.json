@@ -1,12 +1,12 @@
 {
-  "buildCommand": "npm run type-check && npm run build",
+  "buildCommand": "npx vite build",
   "outputDirectory": "dist",
   "framework": "vite",
   "installCommand": "npm install",
   "devCommand": "npm run dev",
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
+      "source": "/((?!api/|assets/|icons/|_next/|favicon.ico|manifest|sw.js|workbox-).*)",
       "destination": "/index.html"
     }
   ],
@@ -30,6 +30,15 @@
       ]
     },
     {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {
@@ -47,6 +56,10 @@
         {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(self), camera=(), microphone=(), payment=(), usb=(), vr=(), accelerometer=(), gyroscope=(), magnetometer=(), clipboard-read=(), clipboard-write=(self)"
         }
       ]
     }

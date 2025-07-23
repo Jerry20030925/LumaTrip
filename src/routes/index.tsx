@@ -8,6 +8,7 @@ import Profile from '../pages/Profile';
 import Messages from '../pages/Messages';
 import Settings from '../pages/Settings';
 import Discover from '../pages/Discover';
+import Notifications from '../pages/Notifications';
 import SearchPage from '../components/search/SearchPage';
 import DebugPage from '../pages/DebugPage';
 import AuthCallback from '../pages/AuthCallback';
@@ -46,8 +47,8 @@ const routes: RouteObject[] = [
           { path: 'profile/:userId', element: <Profile /> },
           { path: 'settings', element: <Settings /> },
           { path: 'search', element: <SearchPage /> },
+          { path: 'notifications', element: <Notifications /> },
           { path: 'map-example', element: <MapExample /> },
-          // { path: '/notifications', element: <Notifications /> },
         ],
       },
     ],

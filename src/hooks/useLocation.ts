@@ -61,7 +61,7 @@ export const useLocation = (options: UseLocationOptions = {}): UseLocationReturn
   const requestPermission = useCallback(async (): Promise<PermissionState> => {
     try {
       return await LocationService.requestPermission();
-    } catch (err) {
+    } catch {
       setError({
         code: 0,
         message: 'Failed to request permission',

@@ -1,5 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Filter, Bell, Heart, MessageCircle, Bookmark, Share2, MapPin, MoreHorizontal, Play, Images } from 'lucide-react';
+import {
+  Container,
+  Paper,
+  TextInput,
+  Button,
+  Group,
+  Badge,
+  Card,
+  Text,
+  Avatar,
+  ActionIcon,
+  Grid,
+  Stack,
+  Title,
+  Skeleton,
+  Center,
+  Tabs,
+  Menu,
+  Indicator,
+  Image,
+  Divider
+} from '@mantine/core';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import Logo from '../components/ui/Logo';
 import PostFilters from '../components/discover/PostFilters';
@@ -183,318 +205,311 @@ const Discover: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--background-gray)' }}>
+    <Container size="xl" px="md" style={{ minHeight: '100vh' }}>
       {/* 固定顶部导航栏 */}
-      <div className="bg-white border-b shadow-sm sticky top-0 z-50" style={{ borderColor: 'var(--border-gray)' }}>
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-3">
+      <Paper shadow="sm" radius={0} pos="sticky" top={0} style={{ 
+        zIndex: 50, 
+        marginBottom: '1rem',
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.2)'
+      }}>
+        <Container size="xl" px="md">
+          <Group justify="space-between" py="md">
             {/* 左侧 Logo */}
-            <div className="flex items-center">
-              <Logo 
-                size="lg" 
-                variant="full" 
-                clickable={true} 
-                onClick={() => window.location.href = '/'}
-              />
-            </div>
+            <Logo 
+              size="lg" 
+              variant="full" 
+              clickable={true} 
+              onClick={() => window.location.href = '/'}
+            />
 
             {/* 中间搜索栏 */}
-            <div className="flex-1 max-w-xl mx-8">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-4 w-4" style={{ color: 'var(--text-secondary)' }} />
-                </div>
-                <input
-                  type="text"
-                  placeholder="搜索精彩内容..."
-                  className="block w-full pl-9 pr-3 py-2 border rounded-full text-sm leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:border-transparent shadow-sm hover:shadow-md transition-all duration-200"
-                  style={{ 
-                    borderColor: 'var(--border-gray)'
-                  } as React.CSSProperties}
-                />
-              </div>
-            </div>
+            <TextInput
+              placeholder="搜索精彩内容..."
+              leftSection={<Search size={16} />}
+              radius="xl"
+              size="sm"
+              style={{ flex: 1, maxWidth: '500px' }}
+            />
 
             {/* 右侧功能区 */}
-            <div className="flex items-center space-x-3">
-              {/* 主题切换按钮 */}
+            <Group gap="xs">
               <ThemeToggle />
-
-              {/* 创建帖子按钮 */}
-              <button
+              
+              <Button
                 onClick={() => setShowCreateModal(true)}
-                className="inline-flex items-center justify-center w-9 h-9 text-white rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 shadow-lg btn-ripple"
-                style={{ 
-                  backgroundColor: 'var(--primary-blue)'
-                } as React.CSSProperties}
+                size="sm"
+                radius="xl"
+                leftSection={<Plus size={16} />}
               >
-                <Plus className="h-4 w-4" />
-              </button>
+                创建
+              </Button>
 
-              {/* 通知铃铛 */}
-              <div className="relative">
-                <button className="inline-flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <Bell className="h-4 w-4" style={{ color: 'var(--text-secondary)' }} />
-                </button>
-                {/* 红点未读提示 */}
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-gray-800"></div>
-              </div>
+              <Indicator inline size={10} offset={7} position="top-end" color="red">
+                <ActionIcon variant="subtle" size="lg" radius="xl">
+                  <Bell size={18} />
+                </ActionIcon>
+              </Indicator>
 
-              {/* 用户头像 */}
-              <div className="relative">
-                <button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2">
-                  <img
-                    className="h-8 w-8 rounded-full object-cover border-2 hover:border-blue-300 transition-colors"
-                    style={{ borderColor: 'var(--border-gray)' }}
-                    src={user?.user_metadata?.avatar_url || 'https://picsum.photos/32/32?random=user'}
-                    alt="用户头像"
-                  />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+              <Avatar
+                src={user?.user_metadata?.avatar_url || 'https://picsum.photos/32/32?random=user'}
+                size="sm"
+                radius="xl"
+                style={{ cursor: 'pointer' }}
+              />
+            </Group>
+          </Group>
+        </Container>
 
         {/* 次级导航/筛选栏 */}
-        <div className="bg-white border-b" style={{ borderColor: 'var(--border-gray)' }}>
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between py-3">
-              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 filter-tabs">
-                {filterTabs.map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveFilter(tab)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0 relative ${
-                      activeFilter === tab
-                        ? 'text-white shadow-md transform scale-105'
-                        : 'text-gray-700 hover:bg-gray-200 hover:text-gray-900'
-                    }`}
-                    style={{
-                      backgroundColor: activeFilter === tab ? 'var(--primary-blue)' : 'var(--background-gray)'
-                    }}
-                  >
-                    {tab}
-                    {activeFilter === tab && (
-                      <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-blue-500 rounded-full"></div>
-                    )}
-                  </button>
-                ))}
-                
-                {/* 话题标签 */}
-                <div className="flex items-center gap-2 ml-4 pl-4 border-l" style={{ borderColor: 'var(--border-gray)' }}>
-                  {topicTags.map((tag) => (
-                    <button
-                      key={tag}
-                      className="px-3 py-1 text-sm text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors whitespace-nowrap flex-shrink-0"
-                    >
-                      {tag}
-                    </button>
+        <Container size="xl" px="md">
+          <Group justify="space-between" py="sm">
+            <Group gap="sm">
+              <Tabs value={activeFilter} onChange={(value) => setActiveFilter(value || '推荐')}>
+                <Tabs.List>
+                  {filterTabs.map((tab) => (
+                    <Tabs.Tab key={tab} value={tab}>
+                      {tab}
+                    </Tabs.Tab>
                   ))}
-                </div>
-              </div>
+                </Tabs.List>
+              </Tabs>
               
-              {/* 筛选按钮 */}
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`inline-flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 ml-4 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  showFilters 
-                    ? 'text-white shadow-md' 
-                    : 'text-gray-600 hover:bg-gray-200'
-                }`}
-                style={{
-                  backgroundColor: showFilters ? 'var(--primary-blue)' : 'var(--background-gray)'
-                } as React.CSSProperties}
-              >
-                <Filter className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+              <Divider orientation="vertical" />
+              
+              {/* 话题标签 */}
+              <Group gap="xs">
+                {topicTags.map((tag) => (
+                  <Badge
+                    key={tag}
+                    variant="light"
+                    radius="xl"
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {tag}
+                  </Badge>
+                ))}
+              </Group>
+            </Group>
+            
+            {/* 筛选按钮 */}
+            <ActionIcon
+              variant={showFilters ? 'filled' : 'subtle'}
+              size="lg"
+              radius="xl"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter size={18} />
+            </ActionIcon>
+          </Group>
+        </Container>
+      </Paper>
 
       {/* 主内容区 */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <Stack gap="lg">
         {/* 筛选面板 */}
         {showFilters && (
-          <div className="mb-6 p-4 bg-white shadow-sm border animate-in slide-in-from-top duration-200" style={{ borderRadius: 'var(--radius-card)', borderColor: 'var(--border-gray)', boxShadow: 'var(--shadow-card)' }}>
+          <Paper p="md" radius="xl" shadow="sm" style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.3)'
+          }}>
             <PostFilters />
-          </div>
+          </Paper>
         )}
 
         {/* 附近内容 - 基于位置的推荐 */}
         {activeFilter === '附近' && (
-          <div className="mb-6">
-            <LocationBasedContent 
-              title="附近的精彩推荐"
-              subtitle="发现您身边的美食、景点和活动"
-              showFilters={true}
-              defaultFilters={{ maxDistance: 25, minRating: 4.0 }}
-              className="animate-in slide-in-from-top duration-300"
-            />
-          </div>
+          <LocationBasedContent 
+            title="附近的精彩推荐"
+            subtitle="发现您身边的美食、景点和活动"
+            showFilters={true}
+            defaultFilters={{ maxDistance: 25, minRating: 4.0 }}
+          />
         )}
 
         {/* 瀑布流内容 */}
-        <div className="transition-all duration-200">
-          {activeFilter === '附近' ? null : loading ? (
-            <div className="masonry-grid">
-              {[...Array(12)].map((_, i) => (
-                <div key={i} className="animate-pulse stagger-animation" style={{ animationDelay: `${i * 0.05}s` }}>
-                  <div className="bg-white shadow-sm overflow-hidden" style={{ borderRadius: 'var(--radius-card)' }}>
-                    <div className="bg-gray-200 aspect-[3/4] mb-3"></div>
-                    <div className="p-3">
-                      <div className="bg-gray-200 h-3 rounded mb-2"></div>
-                      <div className="bg-gray-200 h-3 rounded w-3/4 mb-3"></div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <div className="bg-gray-200 h-6 w-6 rounded-full"></div>
-                          <div className="bg-gray-200 h-3 w-16 rounded"></div>
-                        </div>
-                        <div className="bg-gray-200 h-3 w-12 rounded"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : activeFilter === '附近' ? null : posts.length === 0 ? (
+        {activeFilter === '附近' ? null : loading ? (
+          <Grid>
+            {[...Array(12)].map((_, i) => (
+              <Grid.Col key={i} span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
+                <Card padding="lg" radius="xl" shadow="sm" style={{
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)'
+                }}>
+                  <Skeleton height={200} mb="md" />
+                  <Skeleton height={12} mb="xs" />
+                  <Skeleton height={12} width="75%" mb="md" />
+                  <Group justify="space-between">
+                    <Group gap="xs">
+                      <Skeleton height={24} circle />
+                      <Skeleton height={12} width={80} />
+                    </Group>
+                    <Skeleton height={12} width={50} />
+                  </Group>
+                </Card>
+              </Grid.Col>
+            ))}
+          </Grid>
+        ) : activeFilter === '附近' ? null : posts.length === 0 ? (
+          <Center py="xl">
             <EmptyState 
               type="discover" 
               onAction={() => setShowCreateModal(true)}
             />
-          ) : (
-            <div className="masonry-grid">
-              {posts.map((post, index) => (
-                <div key={post.id} className="card-hover stagger-animation" style={{ animationDelay: `${index * 0.05}s` }}>
-                  <div className="bg-white shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg" style={{ borderRadius: 'var(--radius-card)' }}>
-                    {/* 图片区域 */}
-                    <div className="relative overflow-hidden">
-                      <img
-                        src={post.images[0]}
-                        alt={post.title}
-                        className="w-full h-auto object-cover transition-transform duration-300 hover:scale-102"
-                        style={{ aspectRatio: 'auto' }}
-                      />
-                      
-                      {/* 多图标识 */}
-                      {post.images.length > 1 && (
-                        <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                          <Images className="w-3 h-3" />
-                          <span>{post.images.length}</span>
-                        </div>
-                      )}
-                      
-                      {/* 视频标识 */}
-                      {post.content.includes('视频') && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-12 h-12 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
-                            <Play className="w-6 h-6 text-white" />
-                          </div>
-                        </div>
-                      )}
-                    </div>
+          </Center>
+        ) : (
+          <Grid>
+            {posts.map((post) => (
+              <Grid.Col key={post.id} span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
+                <Card padding="lg" radius="xl" shadow="sm" style={{ 
+                  cursor: 'pointer',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  transition: 'all 0.3s ease'
+                }}>
+                  {/* 图片区域 */}
+                  <Card.Section pos="relative">
+                    <Image
+                      src={post.images[0]}
+                      alt={post.title}
+                      height={200}
+                      fit="cover"
+                    />
+                    
+                    {/* 多图标识 */}
+                    {post.images.length > 1 && (
+                      <Badge
+                        pos="absolute"
+                        top={8}
+                        right={8}
+                        variant="filled"
+                        color="dark"
+                        leftSection={<Images size={12} />}
+                        size="sm"
+                        radius="xl"
+                      >
+                        {post.images.length}
+                      </Badge>
+                    )}
+                    
+                    {/* 视频标识 */}
+                    {post.content.includes('视频') && (
+                      <Center
+                        pos="absolute"
+                        top={0}
+                        left={0}
+                        right={0}
+                        bottom={0}
+                      >
+                        <ActionIcon size="xl" radius="xl" variant="filled" color="dark">
+                          <Play size={24} />
+                        </ActionIcon>
+                      </Center>
+                    )}
+                  </Card.Section>
 
-                    {/* 内容区域 */}
-                    <div className="p-3">
-                      {/* 标题/描述 */}
-                      <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2">{post.title}</h3>
-                      <p className="text-xs text-gray-600 mb-2 line-clamp-2">{post.content}</p>
-                      
-                      {/* 位置标签 */}
-                      {post.location && (
-                        <div className="flex items-center gap-1 mb-2">
-                          <MapPin className="w-3 h-3 text-gray-400" />
-                          <span className="text-xs text-gray-500">{post.location}</span>
-                        </div>
-                      )}
-                      
-                      {/* 话题标签 */}
-                      {post.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-3">
-                          {post.tags.map((tag) => (
-                            <button
-                              key={tag}
-                              className="px-2 py-1 text-xs text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors"
-                            >
-                              {tag}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      
-                      {/* 用户信息栏 */}
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <img
-                            src={post.author.avatar}
-                            alt={post.author.name}
-                            className="w-6 h-6 rounded-full object-cover"
-                          />
-                          <div>
-                            <button className="text-xs font-medium text-gray-900 hover:text-blue-600 transition-colors">
-                              {post.author.name}
-                            </button>
-                          </div>
-                        </div>
-                        <span className="text-xs text-gray-500">{formatTimeAgo(post.createdAt)}</span>
-                      </div>
-                      
-                      {/* 互动栏 */}
-                      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                        <div className="flex items-center gap-3">
-                          <button
+                  <Stack gap="xs">
+                    {/* 标题/描述 */}
+                    <Title order={4} size="sm" lineClamp={2}>{post.title}</Title>
+                    <Text size="xs" c="dimmed" lineClamp={2}>{post.content}</Text>
+                    
+                    {/* 位置标签 */}
+                    {post.location && (
+                      <Group gap={4}>
+                        <MapPin size={12} />
+                        <Text size="xs" c="dimmed">{post.location}</Text>
+                      </Group>
+                    )}
+                    
+                    {/* 话题标签 */}
+                    {post.tags.length > 0 && (
+                      <Group gap={4}>
+                        {post.tags.map((tag) => (
+                          <Badge key={tag} size="xs" variant="light" radius="xl">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </Group>
+                    )}
+                    
+                    {/* 用户信息栏 */}
+                    <Group justify="space-between" align="center">
+                      <Group gap={8}>
+                        <Avatar src={post.author.avatar} size={20} radius="xl" />
+                        <Text size="xs" fw={500}>{post.author.name}</Text>
+                      </Group>
+                      <Text size="xs" c="dimmed">{formatTimeAgo(post.createdAt)}</Text>
+                    </Group>
+                    
+                    <Divider size="xs" />
+                    
+                    {/* 互动栏 */}
+                    <Group justify="space-between">
+                      <Group gap="lg">
+                        <Group gap={4}>
+                          <ActionIcon
+                            variant="subtle"
+                            size="sm"
+                            color={post.isLiked ? 'red' : 'gray'}
                             onClick={() => handleLike(post.id)}
-                            className={`flex items-center gap-1 transition-all duration-200 ${
-                              post.isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
-                            }`}
                           >
-                            <Heart className={`w-4 h-4 ${post.isLiked ? 'fill-current heart-animate' : ''}`} />
-                            <span className="text-xs">{formatNumber(post.likes)}</span>
-                          </button>
-                          
-                          <button className="flex items-center gap-1 text-gray-500 hover:text-blue-500 transition-colors">
-                            <MessageCircle className="w-4 h-4" />
-                            <span className="text-xs">{formatNumber(post.comments)}</span>
-                          </button>
-                          
-                          <button
-                            onClick={() => handleBookmark(post.id)}
-                            className={`flex items-center gap-1 transition-colors ${
-                              post.isBookmarked ? 'text-blue-500' : 'text-gray-500 hover:text-blue-500'
-                            }`}
-                          >
-                            <Bookmark className={`w-4 h-4 ${post.isBookmarked ? 'fill-current' : ''}`} />
-                            <span className="text-xs">{formatNumber(post.bookmarks)}</span>
-                          </button>
-                        </div>
+                            <Heart size={14} fill={post.isLiked ? 'currentColor' : 'none'} />
+                          </ActionIcon>
+                          <Text size="xs">{formatNumber(post.likes)}</Text>
+                        </Group>
                         
-                        <div className="flex items-center gap-2">
-                          <button className="text-gray-500 hover:text-gray-700 transition-colors">
-                            <Share2 className="w-4 h-4" />
-                          </button>
-                          <button className="text-gray-500 hover:text-gray-700 transition-colors">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
+                        <Group gap={4}>
+                          <ActionIcon variant="subtle" size="sm" color="gray">
+                            <MessageCircle size={14} />
+                          </ActionIcon>
+                          <Text size="xs">{formatNumber(post.comments)}</Text>
+                        </Group>
+                        
+                        <Group gap={4}>
+                          <ActionIcon
+                            variant="subtle"
+                            size="sm"
+                            color={post.isBookmarked ? 'blue' : 'gray'}
+                            onClick={() => handleBookmark(post.id)}
+                          >
+                            <Bookmark size={14} fill={post.isBookmarked ? 'currentColor' : 'none'} />
+                          </ActionIcon>
+                          <Text size="xs">{formatNumber(post.bookmarks)}</Text>
+                        </Group>
+                      </Group>
+                      
+                      <Menu>
+                        <Menu.Target>
+                          <ActionIcon variant="subtle" size="sm" color="gray">
+                            <MoreHorizontal size={14} />
+                          </ActionIcon>
+                        </Menu.Target>
+                        <Menu.Dropdown>
+                          <Menu.Item leftSection={<Share2 size={14} />}>分享</Menu.Item>
+                          <Menu.Item leftSection={<Heart size={14} />}>举报</Menu.Item>
+                        </Menu.Dropdown>
+                      </Menu>
+                    </Group>
+                  </Stack>
+                </Card>
+              </Grid.Col>
+            ))}
+          </Grid>
+        )}
 
+      </Stack>
+      
       {/* 创建帖子模态框 */}
-      {showCreateModal && (
-        <CreatePostModal 
-          isOpen={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          onSubmit={handleCreatePost}
-        />
-      )}
-    </div>
+      <CreatePostModal 
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleCreatePost}
+      />
+    </Container>
   );
 };
 

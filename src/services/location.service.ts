@@ -116,7 +116,7 @@ class LocationService {
     try {
       const permission = await navigator.permissions.query({ name: 'geolocation' });
       return permission.state;
-    } catch (error) {
+    } catch {
       // Fallback: try to get location to check permission
       try {
         await navigator.geolocation.getCurrentPosition(() => {}, () => {}, { timeout: 1 });
@@ -448,7 +448,7 @@ class LocationService {
     if (latitude >= 25 && latitude <= 49 && longitude >= -125 && longitude <= -66) {
       // USA
       return {
-        city: this.getNearestUSCity(latitude, longitude),
+        city: this.getNearestUSCity(),
         state: 'California', // Mock
         country: 'United States',
         countryCode: 'US'
@@ -456,14 +456,14 @@ class LocationService {
     } else if (latitude >= 35 && latitude <= 71 && longitude >= -10 && longitude <= 40) {
       // Europe
       return {
-        city: this.getNearestEuropeanCity(latitude, longitude),
+        city: this.getNearestEuropeanCity(),
         country: 'Germany', // Mock
         countryCode: 'DE'
       };
     } else if (latitude >= -10 && latitude <= 55 && longitude >= 60 && longitude <= 180) {
       // Asia
       return {
-        city: this.getNearestAsianCity(latitude, longitude),
+        city: this.getNearestAsianCity(),
         country: 'Japan', // Mock
         countryCode: 'JP'
       };
@@ -479,17 +479,17 @@ class LocationService {
   /**
    * Mock city detection for different regions
    */
-  private getNearestUSCity(_lat: number, _lng: number): string {
+  private getNearestUSCity(): string {
     const cities = ['Los Angeles', 'New York', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia'];
     return cities[Math.floor(Math.random() * cities.length)];
   }
 
-  private getNearestEuropeanCity(_lat: number, _lng: number): string {
+  private getNearestEuropeanCity(): string {
     const cities = ['London', 'Paris', 'Berlin', 'Madrid', 'Rome', 'Amsterdam'];
     return cities[Math.floor(Math.random() * cities.length)];
   }
 
-  private getNearestAsianCity(_lat: number, _lng: number): string {
+  private getNearestAsianCity(): string {
     const cities = ['Tokyo', 'Seoul', 'Beijing', 'Shanghai', 'Bangkok', 'Singapore'];
     return cities[Math.floor(Math.random() * cities.length)];
   }

@@ -57,7 +57,7 @@ const UserIdManager: React.FC<UserIdManagerProps> = ({
       } else {
         setError('该用户ID已被使用，请选择其他ID');
       }
-    } catch (err) {
+    } catch {
       setError('修改失败，请稍后重试');
     } finally {
       setIsLoading(false);

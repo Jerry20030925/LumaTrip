@@ -9,44 +9,63 @@ import { ThemeProvider } from './contexts/ThemeContext';
 
 function App() {
   const [isInitialized, setIsInitialized] = useState(false);
-  const { setSession } = useAuthStore();
+  const { setSession, setLoading, session, isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     let mounted = true;
     
     const initializeAuth = async () => {
       try {
-        // 添加更短的超时时间来快速检测网络问题
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Network timeout')), 3000);
-        });
+        setLoading(true);
         
-        // 直接获取当前会话
-        const sessionPromise = supabase.auth.getSession();
-        
-        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        // 首先检查localStorage中的认证状态
+        const storedAuth = localStorage.getItem('lumatrip-auth');
+        if (storedAuth) {
+          const { state } = JSON.parse(storedAuth);
+          if (state?.session?.access_token) {
+            console.log('Found stored session, validating...');
+            
+            // 验证存储的session是否仍然有效
+            const { data: { session }, error } = await supabase.auth.getSession();
+            
+            if (session && !error) {
+              console.log('Stored session is valid');
+              setSession(session);
+            } else {
+              console.log('Stored session is invalid, clearing...');
+              localStorage.removeItem('lumatrip-auth');
+              setSession(null);
+            }
+          }
+        } else {
+          // 没有存储的认证状态，检查Supabase会话
+          const { data: { session } } = await supabase.auth.getSession();
+          setSession(session);
+        }
         
         if (mounted) {
-          setSession(session);
           setIsInitialized(true);
+          setLoading(false);
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
         if (mounted) {
           setSession(null);
           setIsInitialized(true);
+          setLoading(false);
         }
       }
     };
 
-    // 设置超时保护 - 减少到2秒以提供更好的用户体验
+    // 设置超时保护
     const timeout = setTimeout(() => {
       if (mounted && !isInitialized) {
         console.warn('Auth initialization timeout');
         setSession(null);
         setIsInitialized(true);
+        setLoading(false);
       }
-    }, 2000);
+    }, 5000);
 
     initializeAuth();
 
@@ -54,7 +73,30 @@ function App() {
       mounted = false;
       clearTimeout(timeout);
     };
-  }, [setSession]);
+  }, [setSession, setLoading]);
+
+  // 添加session验证的定期检查
+  useEffect(() => {
+    if (!isAuthenticated || !session) return;
+    
+    const checkSession = async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error || !currentSession) {
+          console.log('Session expired, logging out...');
+          setSession(null);
+        }
+      } catch (error) {
+        console.error('Session check error:', error);
+      }
+    };
+    
+    // 每5分钟检查一次session状态
+    const interval = setInterval(checkSession, 5 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, [isAuthenticated, session, setSession]);
 
   if (!isInitialized) {
     return <LoadingSpinner message="初始化中..." />;

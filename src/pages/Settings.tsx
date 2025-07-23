@@ -35,7 +35,7 @@ const Settings: React.FC = () => {
   ];
 
   return (
-    <div className="settings-container">
+    <div className="settings-container" style={{ margin: '-2rem -1rem', width: 'calc(100% + 2rem)' }}>
       <div className="settings-header">
         <h1 className="settings-title">{t('settings')}</h1>
         <p className="settings-subtitle">{t('user_preferences')}</p>

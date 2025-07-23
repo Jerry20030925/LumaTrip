@@ -19,75 +19,81 @@ const AuthCallback: React.FC = () => {
         console.log('Auth callback hash:', window.location.hash);
         console.log('Auth callback search:', window.location.search);
         
-        // 等待一下让URL参数完全加载
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
-        // 首先尝试从URL解析令牌
+        // 检查URL中的错误参数
+        const urlParams = new URLSearchParams(window.location.search);
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get('access_token');
-        const error = hashParams.get('error');
+        const error = urlParams.get('error') || hashParams.get('error');
+        const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
         
         if (error) {
-          console.error('OAuth error in URL:', error);
-          navigate(`/login?error=${error}`);
+          console.error('OAuth error in URL:', error, errorDescription);
+          navigate(`/app/login?error=${error}&description=${encodeURIComponent(errorDescription || '')}`);
           return;
         }
         
-        if (accessToken) {
-          console.log('Found access token in URL');
-          // 等待Supabase处理令牌
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
+        // 等待Supabase处理OAuth回调
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // 处理OAuth回调 - 使用getSession
+        // 获取当前会话
         const { data, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('OAuth callback error:', sessionError);
-          navigate('/login?error=oauth_failed');
+          navigate('/app/login?error=oauth_session_error');
           return;
         }
 
-        if (data.session) {
+        if (data.session && data.session.user) {
           console.log('OAuth callback success:', data.session.user.email);
           // 设置认证状态
           setSession(data.session);
-          // 短暂延迟确保状态更新
+          
+          // 确保状态更新后再导航
           setTimeout(() => {
             navigate('/app/home', { replace: true });
-          }, 200);
+          }, 500);
         } else {
-          console.log('No session found, access token:', !!accessToken);
+          console.log('No session found after OAuth callback');
           
-          if (accessToken) {
-            // 如果有access_token但没有会话，再次尝试
-            let retryCount = 0;
-            const maxRetries = 3;
-            
-            const retrySession = async () => {
-              const { data: sessionData } = await supabase.auth.getSession();
-              if (sessionData.session) {
+          // 尝试重新获取会话
+          let retryCount = 0;
+          const maxRetries = 3;
+          
+          const retrySession = async () => {
+            try {
+              const { data: sessionData, error: retryError } = await supabase.auth.getSession();
+              
+              if (retryError) {
+                console.error('Retry session error:', retryError);
+                navigate('/app/login?error=retry_session_error');
+                return;
+              }
+              
+              if (sessionData.session && sessionData.session.user) {
+                console.log('Retry success:', sessionData.session.user.email);
                 setSession(sessionData.session);
                 navigate('/app/home', { replace: true });
               } else if (retryCount < maxRetries) {
                 retryCount++;
-                console.log(`Retry ${retryCount} to get session`);
-                setTimeout(retrySession, 1000);
+                console.log(`Retry ${retryCount}/${maxRetries} to get session`);
+                setTimeout(retrySession, 2000);
               } else {
-                navigate('/login?error=no_session');
+                console.error('Failed to get session after retries');
+                navigate('/app/login?error=no_session_after_retries');
               }
-            };
-            
-            setTimeout(retrySession, 1000);
-          } else {
-            navigate('/login?error=no_session');
-          }
+            } catch (retryError) {
+              console.error('Retry session exception:', retryError);
+              navigate('/app/login?error=retry_exception');
+            }
+          };
+          
+          setTimeout(retrySession, 1500);
         }
       } catch (error) {
         console.error('Auth callback processing error:', error);
-        navigate('/login?error=callback_failed');
+        navigate('/app/login?error=callback_processing_failed');
       } finally {
-        setTimeout(() => setIsProcessing(false), 2000);
+        setTimeout(() => setIsProcessing(false), 3000);
       }
     };
 

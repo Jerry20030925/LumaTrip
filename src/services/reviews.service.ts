@@ -448,7 +448,7 @@ class ReviewsService {
         .single();
 
       return !!data;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -474,7 +474,7 @@ class ReviewsService {
       if (error) return null;
 
       return this.mapDatabaseToReview(data);
-    } catch (error) {
+    } catch {
       return null;
     }
   }

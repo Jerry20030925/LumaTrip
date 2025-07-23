@@ -1,37 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams, useLocation } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
+import { Button, TextInput, Stack, Text, Alert, Box, PasswordInput } from '@mantine/core';
 import GoogleLoginButton from '../components/auth/GoogleLoginButton';
-import '../components/auth/Auth.css';
+import AuthLayout from '../components/layout/AuthLayout';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  
+  // 获取从ProtectedRoute传递的重定向路径
+  const from = location.state?.from?.pathname || '/app/home';
+
+  // 如果已经登录，重定向到目标页面
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
 
   useEffect(() => {
     const errorParam = searchParams.get('error');
+    const errorDescription = searchParams.get('description');
+    
     if (errorParam) {
       switch (errorParam) {
         case 'oauth_failed':
+        case 'oauth_session_error':
           setError('Google登录失败，请重试');
           break;
         case 'no_session':
+        case 'no_session_after_retries':
           setError('登录会话无效，请重新登录');
           break;
         case 'callback_failed':
-          setError('登录处理失败，请重试');
+        case 'callback_processing_failed':
+          setError('登录回调处理失败，请重试');
+          break;
+        case 'retry_session_error':
+        case 'retry_exception':
+          setError('会话重试失败，请重新登录');
+          break;
+        case 'access_denied':
+          setError('您拒绝了授权，无法完成登录');
           break;
         default:
-          setError('登录出现问题，请重试');
+          setError(errorDescription ? `登录失败: ${decodeURIComponent(errorDescription)}` : '登录出现问题，请重试');
       }
     }
   }, [searchParams]);
@@ -43,7 +66,8 @@ const Login: React.FC = () => {
 
     try {
       await login(email, password);
-      navigate('/app/home');
+      // 登录成功后重定向到目标页面
+      navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.message || t('error'));
     } finally {
@@ -63,74 +87,70 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-particles"></div>
-      <div className="auth-card">
-        <div className="auth-header">
-          <h1 className="auth-title">{t('welcome')}</h1>
-          <p className="auth-subtitle">{t('sign_in')}</p>
-        </div>
+    <AuthLayout
+      title={t('welcome')}
+      subtitle={t('sign_in')}
+    >
+      <Stack gap="lg">
+        <GoogleLoginButton onLogin={handleGoogleLogin} />
+        
+        <Box style={{ textAlign: 'center' }}>
+          <Text size="sm" c="dimmed">{t('or')}</Text>
+        </Box>
 
-        <div className="auth-form">
-          <GoogleLoginButton onLogin={handleGoogleLogin} />
-          
-          <div className="auth-divider">
-            <span>{t('or')}</span>
-          </div>
+        <form onSubmit={handleSubmit}>
+          <Stack gap="md">
+            <TextInput
+              type="email"
+              placeholder={t('email')}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              radius="md"
+              size="md"
+            />
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <input
-                type="email"
-                placeholder={t('email')}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="auth-input"
-              />
-            </div>
+            <PasswordInput
+              placeholder={t('password')}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              radius="md"
+              size="md"
+              visibilityToggleIcon={({ reveal }) =>
+                reveal ? <EyeOff size={18} /> : <Eye size={18} />
+              }
+            />
 
-            <div className="form-group password-input-group">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder={t('password')}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="auth-input"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="password-toggle"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
+            {error && (
+              <Alert color="red" radius="md">
+                {error}
+              </Alert>
+            )}
 
-            {error && <div className="auth-error">{error}</div>}
-
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="auth-button"
+            <Button
+              type="submit"
+              loading={loading}
+              size="md"
+              radius="md"
+              gradient={{ from: 'blue', to: 'purple' }}
+              fullWidth
             >
               {loading ? t('loading') : t('sign_in')}
-            </button>
-          </form>
+            </Button>
+          </Stack>
+        </form>
 
-          <div className="auth-footer">
-            <p>
-              {t('dont_have_account')}{' '}
-              <Link to="/app/register" className="auth-link">
-                {t('sign_up')}
-              </Link>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+        <Box style={{ textAlign: 'center' }}>
+          <Text size="sm">
+            {t('dont_have_account')}{' '}
+            <Text component={Link} to="/app/register" c="blue" fw={500}>
+              {t('sign_up')}
+            </Text>
+          </Text>
+        </Box>
+      </Stack>
+    </AuthLayout>
   );
 };
 

@@ -5,7 +5,7 @@ interface PostState {
   fetchPosts: () => void;
 }
 
-export const usePostStore = create<PostState>((_set) => ({
+export const usePostStore = create<PostState>(() => ({
   posts: [],
   fetchPosts: async () => {
     // const posts = await fetchPosts();

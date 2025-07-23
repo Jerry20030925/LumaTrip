@@ -1,6 +1,31 @@
 import { useState, useEffect } from 'react';
-import { Search, ArrowDown, Star, Heart, MessageCircle, Globe, Menu, X } from 'lucide-react';
+import { Search, ArrowDown, Heart, MessageCircle, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {
+  Container,
+  Group,
+  Button,
+  Text,
+  Title,
+  Stack,
+  Card,
+  Badge,
+  Avatar,
+  TextInput,
+  Paper,
+  Center,
+  Box,
+  Overlay,
+  ActionIcon,
+  Burger,
+  Drawer,
+  Anchor,
+  SimpleGrid,
+  Image,
+  Rating
+} from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import '../styles/LandingPage.css';
 
 interface Destination {
   id: string;
@@ -40,7 +65,7 @@ const LandingPage = () => {
   const [featuredContent, setFeaturedContent] = useState<FeaturedContent[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isNavScrolled, setIsNavScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [opened, { open, close }] = useDisclosure(false);
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [contentFilter, setContentFilter] = useState('Latest');
 
@@ -197,85 +222,141 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="homepage-container min-h-screen bg-gray-50">
+    <>
       {/* Fixed Navigation */}
-      <nav className={`homepage-nav ${isNavScrolled ? 'scrolled' : ''}`}>
-        <div className="homepage-container-width">
-          <div className="flex items-center justify-between h-[70px]">
+      <Paper
+        pos="fixed"
+        top={0}
+        left={0}
+        right={0}
+        style={{
+          zIndex: 1000,
+          backgroundColor: isNavScrolled ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: isNavScrolled ? 'blur(10px)' : 'none',
+          borderBottom: isNavScrolled ? '1px solid var(--mantine-color-gray-3)' : 'none',
+          transition: 'all 0.3s ease'
+        }}
+        p="md"
+        radius={0}
+      >
+        <Container size="xl">
+          <Group justify="space-between" align="center">
             {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <Globe className="w-5 h-5 text-white" />
-              </div>
-              <h1 className="text-xl font-bold text-gray-900">LumaTrip</h1>
-            </div>
+            <Group gap="sm">
+              <Box
+                style={{
+                  width: 32,
+                  height: 32,
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  borderRadius: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Globe size={20} style={{ color: 'white' }} />
+              </Box>
+              <Title order={2} size="h3" c={isNavScrolled ? 'dark' : 'white'}>
+                LumaTrip
+              </Title>
+            </Group>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-8">
-              <a href="#discover" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">Discover</a>
-              <a href="#destinations" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">Destinations</a>
-              <a href="#stories" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">Stories</a>
-              <a href="#about" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">About</a>
-            </div>
+            <Group gap="xl" visibleFrom="md">
+              <Anchor href="#discover" c={isNavScrolled ? 'dark' : 'white'} fw={500}>
+                Discover
+              </Anchor>
+              <Anchor href="#destinations" c={isNavScrolled ? 'dark' : 'white'} fw={500}>
+                Destinations
+              </Anchor>
+              <Anchor href="#stories" c={isNavScrolled ? 'dark' : 'white'} fw={500}>
+                Stories
+              </Anchor>
+              <Anchor href="#about" c={isNavScrolled ? 'dark' : 'white'} fw={500}>
+                About
+              </Anchor>
+            </Group>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-3">
-              <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-                <Globe className="w-5 h-5 text-gray-600" />
-              </button>
-              <Link to="/app/login" className="btn-secondary px-4 py-2 text-sm hidden md:block">
-                Login
-              </Link>
-              <Link to="/app/register" className="btn-primary px-4 py-2 text-sm">
-                Sign Up
-              </Link>
-              <button 
-                className="md:hidden p-2 rounded-full hover:bg-gray-100 transition-colors"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            <Group gap="sm">
+              <ActionIcon variant="subtle" c={isNavScrolled ? 'dark' : 'white'}>
+                <Globe size={20} />
+              </ActionIcon>
+              <Button
+                component={Link}
+                to="/app/login"
+                variant={isNavScrolled ? 'subtle' : 'white'}
+                color={isNavScrolled ? 'dark' : 'blue'}
+                visibleFrom="md"
               >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+                Login
+              </Button>
+              <Button
+                component={Link}
+                to="/app/register"
+                gradient={{ from: 'blue', to: 'purple' }}
+                variant="gradient"
+              >
+                Sign Up
+              </Button>
+              <Burger
+                opened={opened}
+                onClick={open}
+                hiddenFrom="md"
+                color={isNavScrolled ? 'dark' : 'white'}
+              />
+            </Group>
+          </Group>
+        </Container>
+      </Paper>
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 bg-white z-50 md:hidden">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-4 border-b">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Globe className="w-5 h-5 text-white" />
-                </div>
-                <h1 className="text-xl font-bold text-gray-900">LumaTrip</h1>
-              </div>
-              <button 
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="flex-1 p-4 space-y-4">
-              <a href="#discover" className="block text-lg font-medium text-gray-900 py-3 border-b">Discover</a>
-              <a href="#destinations" className="block text-lg font-medium text-gray-900 py-3 border-b">Destinations</a>
-              <a href="#stories" className="block text-lg font-medium text-gray-900 py-3 border-b">Stories</a>
-              <a href="#about" className="block text-lg font-medium text-gray-900 py-3 border-b">About</a>
-            </div>
-            <div className="p-4 border-t space-y-3">
-              <Link to="/app/login" className="w-full btn-secondary py-3 block text-center">Login</Link>
-              <Link to="/app/register" className="w-full btn-primary py-3 block text-center">Sign Up</Link>
-            </div>
-          </div>
-        </div>
-      )}
+      <Drawer opened={opened} onClose={close} title="LumaTrip" hiddenFrom="md">
+        <Stack gap="lg">
+          <Stack gap="md">
+            <Anchor href="#discover" size="lg" fw={500} onClick={close}>
+              Discover
+            </Anchor>
+            <Anchor href="#destinations" size="lg" fw={500} onClick={close}>
+              Destinations
+            </Anchor>
+            <Anchor href="#stories" size="lg" fw={500} onClick={close}>
+              Stories
+            </Anchor>
+            <Anchor href="#about" size="lg" fw={500} onClick={close}>
+              About
+            </Anchor>
+          </Stack>
+          <Stack gap="sm">
+            <Button component={Link} to="/app/login" variant="subtle" fullWidth>
+              Login
+            </Button>
+            <Button component={Link} to="/app/register" fullWidth gradient={{ from: 'blue', to: 'purple' }}>
+              Sign Up
+            </Button>
+          </Stack>
+        </Stack>
+      </Drawer>
 
       {/* Hero Section */}
-      <section className="homepage-hero">
+      <Box
+        pos="relative"
+        style={{
+          height: '100vh',
+          overflow: 'hidden',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        }}
+      >
         <video 
-          className="homepage-hero-bg"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 1
+          }}
           autoPlay
           muted
           loop
@@ -284,298 +365,500 @@ const LandingPage = () => {
         >
           <source src="https://videos.pexels.com/video-files/3571264/3571264-uhd_2560_1440_30fps.mp4" type="video/mp4" />
         </video>
-        <div className="homepage-hero-overlay"></div>
-        <div className="homepage-hero-content">
-          <h1 className="homepage-hero h1">Explore the World, Share Your Journey</h1>
-          <p className="homepage-hero p">Join the global community of travelers and discover amazing destinations</p>
-          
-          <div className="homepage-search-wrapper mb-12">
-            <div className="relative max-w-2xl mx-auto">
-              <Search className="absolute left-8 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search destinations, users, or topics..."
-                className="homepage-search w-full pl-16 pr-8 py-4 border-0 rounded-full text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              />
-            </div>
-            <div className="flex flex-wrap gap-2 mt-4 justify-center">
-              {['Bali', 'Kyoto', 'Santorini', 'Maldives'].map((tag) => (
-                <span key={tag} className="px-3 py-1 bg-white bg-opacity-20 text-white text-sm rounded-full">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-          
-          <div className="homepage-cta">
-            <Link to="/app/register" className="btn-primary px-8 py-4 text-lg">
-              Start Exploring
-            </Link>
-            <button className="btn-secondary px-8 py-4 text-lg text-white border-white hover:bg-white hover:text-blue-600">
-              Learn More
-            </button>
-          </div>
-        </div>
         
-        <div className="homepage-scroll-indicator">
-          <ArrowDown className="w-6 h-6 text-white" />
-        </div>
-      </section>
+        <Overlay color="#000" backgroundOpacity={0.4} zIndex={2} />
+        
+        <Center style={{ height: '100%', zIndex: 3, position: 'relative' }}>
+          <Container size="md">
+            <Stack align="center" gap="xl" ta="center">
+              <Title
+                order={1}
+                size={60}
+                c="white"
+                fw={700}
+                style={{
+                  lineHeight: 1.2,
+                  textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                }}
+              >
+                Explore the World, Share Your Journey
+              </Title>
+              
+              <Text
+                size="xl"
+                c="white"
+                opacity={0.9}
+                maw={600}
+                style={{
+                  textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                }}
+              >
+                Join the global community of travelers and discover amazing destinations
+              </Text>
+              
+              <Stack align="center" gap="lg" w="100%" maw={600}>
+                <TextInput
+                  size="xl"
+                  radius="xl"
+                  placeholder="Search destinations, users, or topics..."
+                  leftSection={<Search size={20} />}
+                  w="100%"
+                  styles={{
+                    input: {
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: 'none',
+                      fontSize: '18px',
+                      padding: '16px 20px'
+                    }
+                  }}
+                />
+                
+                <Group justify="center" gap="xs">
+                  {['Bali', 'Kyoto', 'Santorini', 'Maldives'].map((tag) => (
+                    <Badge
+                      key={tag}
+                      variant="white"
+                      color="blue"
+                      size="lg"
+                      radius="xl"
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        color: 'white',
+                        border: '1px solid rgba(255, 255, 255, 0.3)'
+                      }}
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                </Group>
+              </Stack>
+              
+              <Group justify="center" gap="md">
+                <Button
+                  component={Link}
+                  to="/app/register"
+                  size="xl"
+                  radius="xl"
+                  gradient={{ from: 'blue', to: 'purple' }}
+                  style={{
+                    padding: '16px 32px',
+                    fontSize: '18px',
+                    fontWeight: 600
+                  }}
+                >
+                  Start Exploring
+                </Button>
+                <Button
+                  component={Link}
+                  to="/app/login"
+                  size="xl"
+                  radius="xl"
+                  variant="white"
+                  color="blue"
+                  style={{
+                    padding: '16px 32px',
+                    fontSize: '18px',
+                    fontWeight: 600
+                  }}
+                >
+                  Login
+                </Button>
+              </Group>
+            </Stack>
+          </Container>
+        </Center>
+        
+        <Center
+          pos="absolute"
+          bottom={30}
+          left={0}
+          right={0}
+          style={{ zIndex: 3 }}
+        >
+          <ActionIcon
+            variant="transparent"
+            c="white"
+            size="xl"
+            style={{
+              animation: 'bounce 2s infinite'
+            }}
+          >
+            <ArrowDown size={24} />
+          </ActionIcon>
+        </Center>
+      </Box>
 
       {/* Features Section */}
-      <section className="homepage-section" id="discover">
-        <div className="homepage-container-width">
-          <div className="text-center mb-12">
-            <p className="text-sm text-blue-600 font-medium mb-2">Why Choose LumaTrip</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Make Travel More Meaningful</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">Connect with travelers worldwide, share amazing moments, and discover new destinations through our platform</p>
-          </div>
+      <Container size="xl" py={100} id="discover">
+        <Stack align="center" gap="xl">
+          <Stack align="center" gap="md" ta="center">
+            <Badge size="lg" variant="light" color="blue" radius="xl">
+              Why Choose LumaTrip
+            </Badge>
+            <Title order={2} size={48} fw={700}>
+              Make Travel More Meaningful
+            </Title>
+            <Text size="lg" c="dimmed" maw={600}>
+              Connect with travelers worldwide, share amazing moments, and discover new destinations through our platform
+            </Text>
+          </Stack>
           
-          <div className="homepage-features">
-            <div className="homepage-feature-card fade-in stagger-fade">
-              <div className="homepage-feature-icon">📸</div>
-              <h3 className="homepage-feature-title">Share Amazing Moments</h3>
-              <p className="homepage-feature-desc">Capture your journey with photos and stories, creating lasting memories</p>
-            </div>
-            <div className="homepage-feature-card fade-in stagger-fade">
-              <div className="homepage-feature-icon">🗺️</div>
-              <h3 className="homepage-feature-title">Discover New Destinations</h3>
-              <p className="homepage-feature-desc">Explore places recommended by fellow travelers and find your next adventure</p>
-            </div>
-            <div className="homepage-feature-card fade-in stagger-fade">
-              <div className="homepage-feature-icon">👥</div>
-              <h3 className="homepage-feature-title">Connect with Travel Buddies</h3>
-              <p className="homepage-feature-desc">Meet like-minded travelers and explore the world's beauty together</p>
-            </div>
-          </div>
-        </div>
-      </section>
+          <SimpleGrid cols={{ base: 1, md: 3 }} spacing="xl" mt="xl">
+            <Card padding="xl" radius="lg" shadow="sm" style={{ textAlign: 'center' }}>
+              <Text size="48px" mb="md">📸</Text>
+              <Title order={3} size="h3" mb="md">
+                Share Amazing Moments
+              </Title>
+              <Text c="dimmed">
+                Capture your journey with photos and stories, creating lasting memories
+              </Text>
+            </Card>
+            
+            <Card padding="xl" radius="lg" shadow="sm" style={{ textAlign: 'center' }}>
+              <Text size="48px" mb="md">🗺️</Text>
+              <Title order={3} size="h3" mb="md">
+                Discover New Destinations
+              </Title>
+              <Text c="dimmed">
+                Explore places recommended by fellow travelers and find your next adventure
+              </Text>
+            </Card>
+            
+            <Card padding="xl" radius="lg" shadow="sm" style={{ textAlign: 'center' }}>
+              <Text size="48px" mb="md">👥</Text>
+              <Title order={3} size="h3" mb="md">
+                Connect with Travel Buddies
+              </Title>
+              <Text c="dimmed">
+                Meet like-minded travelers and explore the world's beauty together
+              </Text>
+            </Card>
+          </SimpleGrid>
+        </Stack>
+      </Container>
 
       {/* Popular Destinations */}
-      <section className="homepage-section alt" id="destinations">
-        <div className="homepage-container-width">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Popular Destinations</h2>
-            <p className="text-gray-600 mb-6">Discover the most loved travel destinations</p>
+      <Paper bg="gray.0" py={100} id="destinations">
+        <Container size="xl">
+          <Stack align="center" gap="xl">
+            <Stack align="center" gap="md" ta="center">
+              <Title order={2} size={48} fw={700}>
+                Popular Destinations
+              </Title>
+              <Text size="lg" c="dimmed" mb="lg">
+                Discover the most loved travel destinations
+              </Text>
+              
+              <Group justify="center" gap="xs">
+                {destinationFilters.map((filter) => (
+                  <Button
+                    key={filter}
+                    variant={selectedFilter === filter ? 'filled' : 'light'}
+                    size="sm"
+                    radius="xl"
+                    onClick={() => setSelectedFilter(filter)}
+                  >
+                    {filter}
+                  </Button>
+                ))}
+              </Group>
+            </Stack>
             
-            <div className="flex flex-wrap gap-2 justify-center mb-8">
-              {destinationFilters.map((filter) => (
-                <button
-                  key={filter}
-                  onClick={() => setSelectedFilter(filter)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    selectedFilter === filter
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  {filter}
-                </button>
+            <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
+              {destinations.map((destination) => (
+                <Card key={destination.id} padding="lg" radius="lg" shadow="sm" style={{ cursor: 'pointer' }}>
+                  <Card.Section>
+                    <Image
+                      src={destination.image}
+                      alt={destination.name}
+                      height={200}
+                      fit="cover"
+                    />
+                  </Card.Section>
+                  
+                  <Stack gap="xs" mt="md">
+                    <Title order={3} size="h4">{destination.name}</Title>
+                    <Text size="sm" c="dimmed">{destination.country}</Text>
+                    
+                    <Group gap="xs">
+                      <Rating value={destination.rating} fractions={2} readOnly size="sm" />
+                      <Text size="sm" fw={500}>{destination.rating}</Text>
+                    </Group>
+                    
+                    <Text size="xs" c="dimmed">{formatNumber(destination.posts)} posts</Text>
+                    
+                    <Group gap={4}>
+                      {destination.tags.map((tag, index) => (
+                        <Badge key={index} size="xs" variant="light" radius="xl">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </Group>
+                  </Stack>
+                </Card>
               ))}
-            </div>
-          </div>
-          
-          <div className="homepage-destinations">
-            {destinations.map((destination) => (
-              <div key={destination.id} className="homepage-destination-card">
-                <img
-                  src={destination.image}
-                  alt={destination.name}
-                  className="homepage-destination-image"
-                />
-                <div className="homepage-destination-content">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{destination.name}</h3>
-                  <p className="text-sm text-gray-500 mb-2">{destination.country}</p>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                    <span className="text-sm font-medium">{destination.rating}</span>
-                  </div>
-                  <p className="text-xs text-gray-500">{formatNumber(destination.posts)} posts</p>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {destination.tags.map((tag, index) => (
-                      <span key={index} className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </SimpleGrid>
+          </Stack>
+        </Container>
+      </Paper>
 
       {/* Featured Content */}
-      <section className="homepage-section" id="stories">
-        <div className="homepage-container-width">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Amazing Stories from Our Community</h2>
-            <p className="text-gray-600 mb-6">Explore stories and experiences from other travelers</p>
+      <Container size="xl" py={100} id="stories">
+        <Stack align="center" gap="xl">
+          <Stack align="center" gap="md" ta="center">
+            <Title order={2} size={48} fw={700}>
+              Amazing Stories from Our Community
+            </Title>
+            <Text size="lg" c="dimmed" mb="lg">
+              Explore stories and experiences from other travelers
+            </Text>
             
-            <div className="flex flex-wrap gap-2 justify-center mb-8">
+            <Group justify="center" gap="xs">
               {contentFilters.map((filter) => (
-                <button
+                <Button
                   key={filter}
+                  variant={contentFilter === filter ? 'filled' : 'outline'}
+                  size="sm"
+                  radius="xl"
                   onClick={() => setContentFilter(filter)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    contentFilter === filter
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
-                  }`}
                 >
                   {filter}
-                </button>
+                </Button>
               ))}
-            </div>
-          </div>
+            </Group>
+          </Stack>
           
-          <div className="homepage-content-grid">
+          <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg">
             {featuredContent.map((content) => (
-              <div key={content.id} className="homepage-content-card">
-                <div className="aspect-video relative overflow-hidden">
-                  <img
+              <Card key={content.id} padding="lg" radius="lg" shadow="sm" style={{ cursor: 'pointer' }}>
+                <Card.Section>
+                  <Image
                     src={content.image}
                     alt={content.title}
-                    className="w-full h-full object-cover"
+                    height={200}
+                    fit="cover"
                   />
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <img
-                      src={content.author.avatar}
-                      alt={content.author.name}
-                      className="w-6 h-6 rounded-full object-cover"
-                    />
-                    <span className="text-sm font-medium text-gray-900">{content.author.name}</span>
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{content.title}</h3>
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <Heart className="w-4 h-4" />
-                      {formatNumber(content.likes)}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MessageCircle className="w-4 h-4" />
-                      {formatNumber(content.comments)}
-                    </span>
-                  </div>
-                </div>
-              </div>
+                </Card.Section>
+                
+                <Stack gap="sm" mt="md">
+                  <Group gap="xs">
+                    <Avatar src={content.author.avatar} size="sm" radius="xl" />
+                    <Text size="sm" fw={500}>{content.author.name}</Text>
+                  </Group>
+                  
+                  <Title order={3} size="h4" lineClamp={2}>
+                    {content.title}
+                  </Title>
+                  
+                  <Group gap="lg">
+                    <Group gap={4}>
+                      <Heart size={16} />
+                      <Text size="sm" c="dimmed">{formatNumber(content.likes)}</Text>
+                    </Group>
+                    <Group gap={4}>
+                      <MessageCircle size={16} />
+                      <Text size="sm" c="dimmed">{formatNumber(content.comments)}</Text>
+                    </Group>
+                  </Group>
+                </Stack>
+              </Card>
             ))}
-          </div>
-        </div>
-      </section>
+          </SimpleGrid>
+        </Stack>
+      </Container>
 
       {/* Testimonials Section */}
-      <section className="homepage-testimonials" id="about">
-        <div className="homepage-container-width">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">What Our Users Say</h2>
-            <p className="text-blue-100 max-w-2xl mx-auto">Real reviews from travelers around the world</p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial) => (
-              <div key={testimonial.id} className="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-6 text-center">
-                <div className="text-4xl mb-4">"</div>
-                <p className="text-white mb-6 italic">{testimonial.content}</p>
-                <div className="flex items-center justify-center gap-3">
-                  <img
-                    src={testimonial.author.avatar}
-                    alt={testimonial.author.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <p className="text-white font-medium">{testimonial.author.name}</p>
-                    <p className="text-blue-200 text-sm">{testimonial.author.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Box
+        py={100}
+        id="about"
+        style={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        }}
+      >
+        <Container size="xl">
+          <Stack align="center" gap="xl">
+            <Stack align="center" gap="md" ta="center">
+              <Title order={2} size={48} fw={700} c="white">
+                What Our Users Say
+              </Title>
+              <Text size="lg" c="blue.1" maw={600}>
+                Real reviews from travelers around the world
+              </Text>
+            </Stack>
+            
+            <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg">
+              {testimonials.map((testimonial) => (
+                <Paper
+                  key={testimonial.id}
+                  p="xl"
+                  radius="lg"
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    textAlign: 'center'
+                  }}
+                >
+                  <Stack align="center" gap="md">
+                    <Text size="48px" c="white">"</Text>
+                    <Text c="white" style={{ fontStyle: 'italic' }}>
+                      {testimonial.content}
+                    </Text>
+                    <Group gap="sm">
+                      <Avatar
+                        src={testimonial.author.avatar}
+                        size="lg"
+                        radius="xl"
+                      />
+                      <Stack gap={2}>
+                        <Text c="white" fw={500}>{testimonial.author.name}</Text>
+                        <Text size="sm" c="blue.1">{testimonial.author.role}</Text>
+                      </Stack>
+                    </Group>
+                  </Stack>
+                </Paper>
+              ))}
+            </SimpleGrid>
+          </Stack>
+        </Container>
+      </Box>
 
       {/* CTA Section */}
-      <section className="homepage-cta-section homepage-section">
-        <div className="homepage-container-width">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to Start Your Travel Story?</h2>
-            <p className="text-blue-100 mb-8 text-lg">Join LumaTrip and explore the world with fellow travelers</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/app/register" className="btn-primary px-8 py-4 bg-white text-blue-600 hover:bg-gray-100">
-                Sign Up Free
-              </Link>
-              <button className="btn-secondary px-8 py-4 text-white border-white hover:bg-white hover:text-blue-600">
-                Download App
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Paper
+        py={100}
+        style={{
+          background: 'linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%)'
+        }}
+      >
+        <Container size="xl">
+          <Center>
+            <Stack align="center" gap="xl" ta="center" maw={800}>
+              <Title order={2} size={48} fw={700} c="white">
+                Ready to Start Your Travel Story?
+              </Title>
+              <Text size="xl" c="blue.1">
+                Join LumaTrip and explore the world with fellow travelers
+              </Text>
+              <Group justify="center" gap="md">
+                <Button
+                  component={Link}
+                  to="/app/register"
+                  size="xl"
+                  radius="xl"
+                  variant="white"
+                  color="blue"
+                  style={{
+                    padding: '16px 32px',
+                    fontSize: '18px',
+                    fontWeight: 600
+                  }}
+                >
+                  Sign Up Free
+                </Button>
+                <Button
+                  size="xl"
+                  radius="xl"
+                  variant="outline"
+                  c="white"
+                  style={{
+                    borderColor: 'white',
+                    padding: '16px 32px',
+                    fontSize: '18px',
+                    fontWeight: 600
+                  }}
+                >
+                  Download App
+                </Button>
+              </Group>
+            </Stack>
+          </Center>
+        </Container>
+      </Paper>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16">
-        <div className="homepage-container-width">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="col-span-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Globe className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="text-xl font-bold">LumaTrip</h3>
-              </div>
-              <p className="text-gray-400 mb-4">Explore the world, share your journey</p>
-              <div className="flex gap-4">
-                <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-700">
-                  <span className="text-sm">f</span>
-                </div>
-                <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-700">
-                  <span className="text-sm">t</span>
-                </div>
-                <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-700">
-                  <span className="text-sm">i</span>
-                </div>
-              </div>
-            </div>
+      <Paper bg="dark.8" c="white" py={80}>
+        <Container size="xl">
+          <SimpleGrid cols={{ base: 1, md: 4 }} spacing="lg">
+            <Box>
+              <Group gap="sm" mb="md">
+                <Box
+                  style={{
+                    width: 32,
+                    height: 32,
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    borderRadius: 8,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Globe size={20} style={{ color: 'white' }} />
+                </Box>
+                <Title order={3} size="h3" c="white">
+                  LumaTrip
+                </Title>
+              </Group>
+              <Text c="dimmed" mb="md">
+                Explore the world, share your journey
+              </Text>
+              <Group gap="sm">
+                <ActionIcon variant="subtle" size="lg" radius="xl" c="dimmed">
+                  <Text size="sm">f</Text>
+                </ActionIcon>
+                <ActionIcon variant="subtle" size="lg" radius="xl" c="dimmed">
+                  <Text size="sm">t</Text>
+                </ActionIcon>
+                <ActionIcon variant="subtle" size="lg" radius="xl" c="dimmed">
+                  <Text size="sm">i</Text>
+                </ActionIcon>
+              </Group>
+            </Box>
             
-            <div>
-              <h4 className="font-semibold mb-4">Discover</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Popular Destinations</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Travel Stories</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Photography</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Travel Guides</a></li>
-              </ul>
-            </div>
+            <Box>
+              <Text fw={600} mb="md" c="white">
+                Discover
+              </Text>
+              <Stack gap="xs">
+                <Anchor c="dimmed" size="sm">Popular Destinations</Anchor>
+                <Anchor c="dimmed" size="sm">Travel Stories</Anchor>
+                <Anchor c="dimmed" size="sm">Photography</Anchor>
+                <Anchor c="dimmed" size="sm">Travel Guides</Anchor>
+              </Stack>
+            </Box>
             
-            <div>
-              <h4 className="font-semibold mb-4">Community</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">User Hub</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Creators</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Events</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Forum</a></li>
-              </ul>
-            </div>
+            <Box>
+              <Text fw={600} mb="md" c="white">
+                Community
+              </Text>
+              <Stack gap="xs">
+                <Anchor c="dimmed" size="sm">User Hub</Anchor>
+                <Anchor c="dimmed" size="sm">Creators</Anchor>
+                <Anchor c="dimmed" size="sm">Events</Anchor>
+                <Anchor c="dimmed" size="sm">Forum</Anchor>
+              </Stack>
+            </Box>
             
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-              </ul>
-            </div>
-          </div>
+            <Box>
+              <Text fw={600} mb="md" c="white">
+                Support
+              </Text>
+              <Stack gap="xs">
+                <Anchor c="dimmed" size="sm">Help Center</Anchor>
+                <Anchor c="dimmed" size="sm">Contact Us</Anchor>
+                <Anchor c="dimmed" size="sm">Privacy Policy</Anchor>
+                <Anchor c="dimmed" size="sm">Terms of Service</Anchor>
+              </Stack>
+            </Box>
+          </SimpleGrid>
           
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 LumaTrip. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+          <Box mt={60} pt="lg" style={{ borderTop: '1px solid var(--mantine-color-dark-4)' }}>
+            <Text ta="center" c="dimmed" size="sm">
+              &copy; 2024 LumaTrip. All rights reserved.
+            </Text>
+          </Box>
+        </Container>
+      </Paper>
+    </>
   );
 };
 

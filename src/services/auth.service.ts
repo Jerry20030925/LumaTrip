@@ -27,7 +27,8 @@ export const loginWithGoogle = async () => {
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',
-      }
+      },
+      skipBrowserRedirect: false
     }
   });
   if (error) throw error;

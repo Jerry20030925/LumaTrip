@@ -5,7 +5,7 @@ interface NotificationState {
   fetchNotifications: () => void;
 }
 
-export const useNotificationStore = create<NotificationState>((_set) => ({
+export const useNotificationStore = create<NotificationState>(() => ({
   notifications: [],
   fetchNotifications: async () => {
     // const notifications = await fetchNotifications();

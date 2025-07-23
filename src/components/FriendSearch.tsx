@@ -100,7 +100,7 @@ const FriendSearch: React.FC<FriendSearchProps> = ({
       );
       
       setSearchResults(mockResults);
-    } catch (err) {
+    } catch {
       setError('搜索失败，请稍后重试');
     } finally {
       setIsSearching(false);
@@ -143,7 +143,7 @@ const FriendSearch: React.FC<FriendSearchProps> = ({
           onSendMessage(user.userId);
           break;
       }
-    } catch (err) {
+    } catch {
       setError('操作失败，请稍后重试');
     } finally {
       setLoadingUserId(null);
