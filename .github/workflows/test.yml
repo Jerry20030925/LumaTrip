@@ -73,7 +73,7 @@ jobs:
         name: codecov-umbrella
         
     - name: 上传测试结果
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: unit-test-results
@@ -127,14 +127,14 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: 上传 Cypress 截图
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: cypress-screenshots-${{ matrix.browser }}
         path: cypress/screenshots
         
     - name: 上传 Cypress 视频
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: cypress-videos-${{ matrix.browser }}
@@ -180,7 +180,7 @@ jobs:
       run: node scripts/performance-test.js
       
     - name: 上传性能报告
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: performance-reports
         path: |
@@ -223,7 +223,7 @@ jobs:
       run: artillery run artillery-config.yml --output load-test-results.json
       
     - name: 上传压力测试报告
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: load-test-results
         path: |
@@ -259,10 +259,14 @@ jobs:
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         
-    - name: CodeQL 分析
-      uses: github/codeql-action/analyze@v2
+    - name: CodeQL 初始化
+      uses: github/codeql-action/init@v3
       with:
         languages: javascript
+        config-file: ./.github/codeql/codeql-config.yml
+        
+    - name: CodeQL 分析
+      uses: github/codeql-action/analyze@v3
 
   # 构建测试
   build-test:
@@ -297,7 +301,7 @@ jobs:
         echo "BUILD_SIZE=$BUILD_SIZE" >> $GITHUB_ENV
         
     - name: 上传构建产物
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: matrix.node-version == 18
       with:
         name: build-artifacts
@@ -317,7 +321,7 @@ jobs:
       uses: actions/checkout@v4
       
     - name: 下载构建产物
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-artifacts
         path: dist/
@@ -344,7 +348,7 @@ jobs:
       uses: actions/checkout@v4
       
     - name: 下载构建产物
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: build-artifacts
         path: dist/
@@ -375,7 +379,7 @@ jobs:
     
     steps:
     - name: 下载所有测试结果
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       
     - name: 生成测试报告
       run: |
@@ -421,7 +425,7 @@ jobs:
         path: test-summary.md
         
     - name: 上传测试报告
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-summary
         path: test-summary.md
