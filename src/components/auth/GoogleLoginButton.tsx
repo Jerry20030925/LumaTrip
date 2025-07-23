@@ -22,9 +22,9 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ onLogin }) => {
       // 检查是否是OAuth配置错误
       if (error?.message?.includes('Unsupported provider') || 
           error?.message?.includes('missing OAuth secret')) {
-        setError(t('google_oauth_not_configured'));
+        setError('Google OAuth 未配置，请联系管理员');
       } else {
-        setError(t('google_login_failed'));
+        setError('Google 登录失败，请重试');
       }
     } finally {
       setIsLoading(false);
