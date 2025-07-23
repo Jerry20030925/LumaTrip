@@ -1,0 +1,21 @@
+{
+  "timestamp": "2025-07-23T05:43:35.866Z",
+  "domain": "www.lumatrip.com",
+  "results": {
+    "critical": {
+      "passed": 4,
+      "total": 4
+    },
+    "functional": {
+      "passed": 4,
+      "total": 4
+    },
+    "security": {
+      "score": 100
+    },
+    "performance": {
+      "avgTime": 53
+    }
+  },
+  "status": "READY"
+}

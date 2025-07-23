@@ -1,0 +1,131 @@
+{
+  "timestamp": "2025-07-23T05:35:41.119Z",
+  "baseUrl": "https://luma-trip-jianwei-chens-projects.vercel.app",
+  "summary": {
+    "total": 13,
+    "passed": 13,
+    "warnings": 0,
+    "failed": 0,
+    "successRate": 100
+  },
+  "details": [
+    {
+      "page": "首页",
+      "path": "/",
+      "status": 200,
+      "responseTime": 482,
+      "contentLength": 4883,
+      "issues": [],
+      "critical": true
+    },
+    {
+      "page": "登录页",
+      "path": "/login",
+      "status": 200,
+      "responseTime": 263,
+      "contentLength": 4883,
+      "issues": [],
+      "critical": true
+    },
+    {
+      "page": "注册页",
+      "path": "/register",
+      "status": 200,
+      "responseTime": 24,
+      "contentLength": 4883,
+      "issues": [],
+      "critical": true
+    },
+    {
+      "page": "应用主页",
+      "path": "/app/home",
+      "status": 200,
+      "responseTime": 269,
+      "contentLength": 4883,
+      "issues": [],
+      "critical": false
+    },
+    {
+      "page": "发现页面",
+      "path": "/app/discover",
+      "status": 200,
+      "responseTime": 291,
+      "contentLength": 4883,
+      "issues": [],
+      "critical": false
+    },
+    {
+      "page": "消息页面",
+      "path": "/app/messages",
+      "status": 200,
+      "responseTime": 248,
+      "contentLength": 4883,
+      "issues": [],
+      "critical": false
+    },
+    {
+      "page": "个人资料",
+      "path": "/app/profile",
+      "status": 200,
+      "responseTime": 30,
+      "contentLength": 4883,
+      "issues": [],
+      "critical": false
+    },
+    {
+      "page": "设置页面",
+      "path": "/app/settings",
+      "status": 200,
+      "responseTime": 27,
+      "contentLength": 4883,
+      "issues": [],
+      "critical": false
+    },
+    {
+      "page": "通知页面",
+      "path": "/app/notifications",
+      "status": 200,
+      "responseTime": 258,
+      "contentLength": 4883,
+      "issues": [],
+      "critical": false
+    },
+    {
+      "page": "地图演示",
+      "path": "/map-demo",
+      "status": 200,
+      "responseTime": 27,
+      "contentLength": 4883,
+      "issues": [],
+      "critical": true
+    },
+    {
+      "page": "搜索页面",
+      "path": "/search",
+      "status": 200,
+      "responseTime": 113,
+      "contentLength": 4883,
+      "issues": [],
+      "critical": false
+    },
+    {
+      "page": "404页面",
+      "path": "/404",
+      "status": 200,
+      "responseTime": 24,
+      "contentLength": 4883,
+      "issues": [],
+      "critical": false
+    },
+    {
+      "page": "不存在页面测试",
+      "path": "/test-nonexistent",
+      "status": 200,
+      "responseTime": 26,
+      "contentLength": 4883,
+      "issues": [],
+      "critical": false
+    }
+  ],
+  "criticalFailures": 0
+}

@@ -8,6 +8,12 @@ const AuthCallback: React.FC = () => {
   const navigate = useNavigate();
   const { setSession } = useAuthStore();
   const [isProcessing, setIsProcessing] = useState(true);
+  const [debugInfo, setDebugInfo] = useState<string[]>([]);
+
+  const addDebugInfo = (info: string) => {
+    console.log(info);
+    setDebugInfo(prev => [...prev, `${new Date().toLocaleTimeString()}: ${info}`]);
+  };
 
   useEffect(() => {
     const handleAuthCallback = async () => {
@@ -15,9 +21,9 @@ const AuthCallback: React.FC = () => {
         setIsProcessing(true);
         
         // 调试信息
-        console.log('Auth callback URL:', window.location.href);
-        console.log('Auth callback hash:', window.location.hash);
-        console.log('Auth callback search:', window.location.search);
+        addDebugInfo(`Auth callback URL: ${window.location.href}`);
+        addDebugInfo(`Hash: ${window.location.hash}`);
+        addDebugInfo(`Search: ${window.location.search}`);
         
         // 检查URL中的错误参数
         const urlParams = new URLSearchParams(window.location.search);
@@ -26,74 +32,88 @@ const AuthCallback: React.FC = () => {
         const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
         
         if (error) {
-          console.error('OAuth error in URL:', error, errorDescription);
-          navigate(`/app/login?error=${error}&description=${encodeURIComponent(errorDescription || '')}`);
+          addDebugInfo(`OAuth error in URL: ${error} - ${errorDescription}`);
+          navigate(`/login?error=${error}&description=${encodeURIComponent(errorDescription || '')}`);
           return;
         }
         
-        // 等待Supabase处理OAuth回调
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // 获取当前会话
-        const { data, error: sessionError } = await supabase.auth.getSession();
+        // 立即检查当前会话
+        addDebugInfo('Checking current session...');
+        const { data: initialSession, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error('OAuth callback error:', sessionError);
-          navigate('/app/login?error=oauth_session_error');
+          addDebugInfo(`Session error: ${sessionError.message}`);
+          navigate('/login?error=oauth_session_error');
           return;
         }
 
-        if (data.session && data.session.user) {
-          console.log('OAuth callback success:', data.session.user.email);
-          // 设置认证状态
-          setSession(data.session);
+        if (initialSession.session && initialSession.session.user) {
+          addDebugInfo(`Found valid session for: ${initialSession.session.user.email}`);
+          setSession(initialSession.session);
           
-          // 确保状态更新后再导航
-          setTimeout(() => {
-            navigate('/app/home', { replace: true });
-          }, 500);
-        } else {
-          console.log('No session found after OAuth callback');
-          
-          // 尝试重新获取会话
-          let retryCount = 0;
-          const maxRetries = 3;
-          
-          const retrySession = async () => {
-            try {
-              const { data: sessionData, error: retryError } = await supabase.auth.getSession();
-              
-              if (retryError) {
-                console.error('Retry session error:', retryError);
-                navigate('/app/login?error=retry_session_error');
+          // 直接重定向，避免状态更新延迟
+          addDebugInfo('Redirecting to /app/home...');
+          window.location.href = '/app/home';
+          return;
+        }
+
+        // 如果没有立即找到会话，等待并重试
+        addDebugInfo('No immediate session found, waiting for auth state change...');
+        
+        let retryCount = 0;
+        const maxRetries = 5;
+        const retryInterval = 1000; // 1秒
+        
+        const retrySessionCheck = async () => {
+          try {
+            retryCount++;
+            addDebugInfo(`Retry ${retryCount}/${maxRetries}: Checking session...`);
+            
+            const { data: sessionData, error: retryError } = await supabase.auth.getSession();
+            
+            if (retryError) {
+              addDebugInfo(`Retry error: ${retryError.message}`);
+              if (retryCount >= maxRetries) {
+                navigate('/login?error=retry_session_error');
                 return;
               }
-              
-              if (sessionData.session && sessionData.session.user) {
-                console.log('Retry success:', sessionData.session.user.email);
-                setSession(sessionData.session);
-                navigate('/app/home', { replace: true });
-              } else if (retryCount < maxRetries) {
-                retryCount++;
-                console.log(`Retry ${retryCount}/${maxRetries} to get session`);
-                setTimeout(retrySession, 2000);
-              } else {
-                console.error('Failed to get session after retries');
-                navigate('/app/login?error=no_session_after_retries');
-              }
-            } catch (retryError) {
-              console.error('Retry session exception:', retryError);
-              navigate('/app/login?error=retry_exception');
             }
-          };
-          
-          setTimeout(retrySession, 1500);
-        }
-      } catch (error) {
-        console.error('Auth callback processing error:', error);
-        navigate('/app/login?error=callback_processing_failed');
+            
+            if (sessionData.session && sessionData.session.user) {
+              addDebugInfo(`Retry success: Found session for ${sessionData.session.user.email}`);
+              setSession(sessionData.session);
+              
+              // 使用 window.location.href 确保完全重新加载页面
+              addDebugInfo('Redirecting to /app/home via window.location...');
+              window.location.href = '/app/home';
+              return;
+            }
+            
+            if (retryCount < maxRetries) {
+              addDebugInfo(`No session yet, retrying in ${retryInterval}ms...`);
+              setTimeout(retrySessionCheck, retryInterval);
+            } else {
+              addDebugInfo('Max retries reached, redirecting to login');
+              navigate('/login?error=no_session_after_retries');
+            }
+          } catch (retryError: any) {
+            addDebugInfo(`Retry exception: ${retryError.message}`);
+            if (retryCount >= maxRetries) {
+              navigate('/login?error=retry_exception');
+            } else {
+              setTimeout(retrySessionCheck, retryInterval);
+            }
+          }
+        };
+        
+        // 开始重试逻辑
+        setTimeout(retrySessionCheck, 500);
+        
+      } catch (error: any) {
+        addDebugInfo(`Auth callback processing error: ${error.message}`);
+        navigate('/login?error=callback_processing_failed');
       } finally {
-        setTimeout(() => setIsProcessing(false), 3000);
+        setTimeout(() => setIsProcessing(false), 10000); // 10秒后停止处理状态
       }
     };
 
@@ -102,18 +122,39 @@ const AuthCallback: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="text-center">
-        <LoadingSpinner message="正在处理登录..." />
+      <div className="text-center max-w-md mx-auto p-6">
+        <LoadingSpinner message="正在处理 Google 登录..." />
         <p className="mt-4 text-gray-600">请稍候，我们正在完成您的登录</p>
+        
+        {/* 调试信息 (仅在开发环境显示) */}
+        {import.meta.env.DEV && debugInfo.length > 0 && (
+          <div className="mt-6 p-4 bg-white rounded-lg shadow-sm text-left">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">调试信息:</h3>
+            <div className="text-xs text-gray-600 space-y-1 max-h-40 overflow-y-auto">
+              {debugInfo.map((info, index) => (
+                <div key={index}>{info}</div>
+              ))}
+            </div>
+          </div>
+        )}
+        
         {!isProcessing && (
-          <div className="mt-4 text-sm text-gray-500">
-            <p>如果页面长时间无响应，请尝试刷新页面</p>
-            <button 
-              onClick={() => window.location.href = '/login'}
-              className="mt-2 text-blue-600 hover:text-blue-800"
-            >
-              返回登录页面
-            </button>
+          <div className="mt-6 text-sm text-gray-500">
+            <p className="mb-3">如果页面长时间无响应，请尝试以下操作：</p>
+            <div className="space-y-2">
+              <button 
+                onClick={() => window.location.href = '/app/home'}
+                className="block w-full px-4 py-2 text-blue-600 hover:text-blue-800 border border-blue-200 rounded hover:bg-blue-50"
+              >
+                直接进入应用
+              </button>
+              <button 
+                onClick={() => window.location.href = '/login'}
+                className="block w-full px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-200 rounded hover:bg-gray-50"
+              >
+                返回登录页面
+              </button>
+            </div>
           </div>
         )}
       </div>

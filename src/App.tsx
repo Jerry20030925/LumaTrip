@@ -1,8 +1,10 @@
 import { RouterProvider } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import router from './routes';
-import ErrorBoundary from './components/ErrorBoundary';
+import EnhancedErrorBoundary from './components/ui/EnhancedErrorBoundary';
 import LoadingSpinner from './components/layout/LoadingSpinner';
+import PerformanceMonitor from './components/ui/PerformanceMonitor';
+import SEOHead from './components/ui/SEOHead';
 import { supabase } from './utils/supabaseClient';
 import useAuthStore from './stores/authStore';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -104,9 +106,21 @@ function App() {
 
   return (
     <ThemeProvider>
-      <ErrorBoundary>
+      <EnhancedErrorBoundary 
+        onError={(error, errorInfo) => {
+          // 可以在这里添加额外的错误处理逻辑
+          console.error('Global error caught:', error, errorInfo);
+        }}
+      >
+        {/* SEO 优化组件 */}
+        <SEOHead />
+        
+        {/* 性能监控组件 */}
+        <PerformanceMonitor />
+        
+        {/* 路由提供者 */}
         <RouterProvider router={router} />
-      </ErrorBoundary>
+      </EnhancedErrorBoundary>
     </ThemeProvider>
   );
 }
