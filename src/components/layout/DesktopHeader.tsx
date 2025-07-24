@@ -39,17 +39,19 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({ user }) => {
         backdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
         boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-        width: '100%'
+        width: '100%',
+        margin: 0,
+        padding: 0
       }}
     >
       <div style={{
         maxWidth: '1280px',
         margin: '0 auto',
-        padding: '12px 16px',
+        padding: '8px 16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        height: '56px'
+        height: '48px'
       }}>
         {/* Logo和品牌 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
