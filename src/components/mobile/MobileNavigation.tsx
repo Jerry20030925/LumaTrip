@@ -20,14 +20,27 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCreateMenu, setShowCreateMenu] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // 检测屏幕尺寸
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   // 强制确保移动端导航可见
   useEffect(() => {
     const checkAndForceDisplay = () => {
-      const isMobile = window.innerWidth < 768;
-      if (isMobile) {
+      const mobile = window.innerWidth < 768;
+      if (mobile) {
         // 强制显示移动端导航
         const mobileNavTop = document.querySelector('.mobile-nav-top');
         const mobileNavBottom = document.querySelector('.mobile-nav-bottom');
@@ -72,6 +85,11 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
       clearTimeout(timer);
     };
   }, []);
+
+  // 如果不是移动端，不渲染任何内容
+  if (!isMobile) {
+    return null;
+  }
 
   const mainNavItems = [
     { id: 'home', label: '首页', icon: Home, path: '/app/home' },
@@ -225,29 +243,90 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
       </AnimatePresence>
 
       {/* Top Navigation for Mobile */}
-      <nav className="mobile-nav-top fixed top-0 left-0 right-0 bg-white/98 dark:bg-gray-900/98 backdrop-filter backdrop-blur-xl border-b border-gray-200/30 dark:border-gray-700/30 block md:hidden shadow-sm z-50">
-        <div className="px-4 py-3">
+      <nav 
+        className="mobile-nav-top"
+        style={{
+          display: 'flex',
+          position: 'fixed',
+          top: '0',
+          left: '0',
+          right: '0',
+          zIndex: '9999',
+          background: 'rgba(255, 255, 255, 0.98)',
+          backdropFilter: 'blur(16px)',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+          flexDirection: 'column',
+          padding: '0'
+        }}
+      >
+        <div style={{ padding: '12px 16px' }}>
           {/* Main Header Row */}
-          <div className="flex items-center justify-between">
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            marginBottom: '12px'
+          }}>
             {/* Left Section */}
-            <div className="flex items-center space-x-3">
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px' 
+            }}>
               <button
                 onClick={() => setIsMenuOpen(true)}
-                className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 hover:scale-105"
+                style={{
+                  padding: '10px',
+                  background: 'rgba(0, 0, 0, 0.05)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
                 aria-label="打开菜单"
               >
-                <Menu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                <Menu style={{ width: '20px', height: '20px', color: '#374151' }} />
               </button>
               
-              <div className="flex items-center space-x-2.5">
-                <div className="w-9 h-9 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-sm">L</span>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '10px' 
+              }}>
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+                }}>
+                  <span style={{ 
+                    color: 'white', 
+                    fontWeight: 'bold', 
+                    fontSize: '14px' 
+                  }}>L</span>
                 </div>
                 <div>
-                  <span className="text-lg font-bold text-gray-900 dark:text-white">
+                  <div style={{
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    color: '#1f2937',
+                    lineHeight: '1.2'
+                  }}>
                     LumaTrip
-                  </span>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 -mt-0.5">
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#6b7280',
+                    lineHeight: '1'
+                  }}>
                     智能旅行助手
                   </div>
                 </div>
@@ -255,24 +334,65 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
             </div>
             
             {/* Right Section */}
-            <div className="flex items-center space-x-2">
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px' 
+            }}>
               {/* Search Button */}
               <button 
-                className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 hover:scale-105"
+                style={{
+                  padding: '10px',
+                  background: 'rgba(0, 0, 0, 0.05)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
                 aria-label="搜索"
               >
-                <Search className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <Search style={{ width: '20px', height: '20px', color: '#6b7280' }} />
               </button>
               
               {/* Notifications */}
               <button 
-                className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 hover:scale-105 relative"
+                style={{
+                  padding: '10px',
+                  background: 'rgba(0, 0, 0, 0.05)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative'
+                }}
                 aria-label="通知"
               >
-                <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <Bell style={{ width: '20px', height: '20px', color: '#6b7280' }} />
                 {notificationCount > 0 && (
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-                    <span className="text-xs text-white font-bold">
+                  <div style={{
+                    position: 'absolute',
+                    top: '2px',
+                    right: '2px',
+                    width: '20px',
+                    height: '20px',
+                    background: 'linear-gradient(135deg, #ef4444, #f97316)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)'
+                  }}>
+                    <span style={{
+                      fontSize: '11px',
+                      color: 'white',
+                      fontWeight: 'bold'
+                    }}>
                       {notificationCount > 9 ? '9+' : notificationCount}
                     </span>
                   </div>
@@ -281,11 +401,31 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
               
               {/* User Avatar */}
               <button 
-                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 hover:scale-105"
+                style={{
+                  padding: '4px',
+                  background: 'rgba(0, 0, 0, 0.05)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
                 aria-label="用户菜单"
               >
-                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center shadow-md">
-                  <span className="text-white font-semibold text-sm">
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  background: 'linear-gradient(135deg, #10b981, #06b6d4)',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
+                }}>
+                  <span style={{
+                    color: 'white',
+                    fontWeight: '600',
+                    fontSize: '14px'
+                  }}>
                     {currentUser?.name?.charAt(0) || 'U'}
                   </span>
                 </div>
@@ -294,7 +434,13 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
           </div>
           
           {/* Secondary Row - Quick Actions */}
-          <div className="flex items-center justify-center space-x-1 mt-3 pb-1">
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px',
+            paddingBottom: '4px'
+          }}>
             {[
               { icon: Home, label: '首页', path: '/app/home' },
               { icon: Search, label: '发现', path: '/app/discover' },
@@ -308,14 +454,26 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
                 <button
                   key={index}
                   onClick={() => handleNavigation(item.path)}
-                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 ${
-                    itemIsActive 
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
-                  }`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    background: itemIsActive 
+                      ? 'rgba(59, 130, 246, 0.1)' 
+                      : 'transparent',
+                    color: itemIsActive ? '#3b82f6' : '#6b7280'
+                  }}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span className="text-xs font-medium">{item.label}</span>
+                  <Icon style={{ width: '16px', height: '16px' }} />
+                  <span style={{
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}>{item.label}</span>
                 </button>
               );
             })}
