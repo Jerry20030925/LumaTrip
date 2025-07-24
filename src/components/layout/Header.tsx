@@ -31,15 +31,15 @@ const Header: React.FC = () => {
 
   return (
     <header className="nav-enhanced">
-      <div className="max-w-7xl mx-auto px-6 py-3">
-        <div className="flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 py-2">
+        <div className="flex items-center justify-between h-12">
           {/* Logo and Brand */}
           <div className="flex items-center space-x-4">
-            <Link to="/app/home" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <span className="text-white font-bold text-lg">L</span>
+            <Link to="/app/home" className="flex items-center space-x-2 group">
+              <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span className="text-white font-bold text-sm">L</span>
               </div>
-              <span className="text-xl font-bold text-gradient-primary hidden sm:block">
+              <span className="text-lg font-bold text-gradient-primary hidden sm:block">
                 LumaTrip
               </span>
             </Link>
@@ -67,45 +67,45 @@ const Header: React.FC = () => {
           </div>
 
           {/* Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
+          <div className="hidden md:flex flex-1 max-w-sm mx-4">
             <div className="relative w-full">
               <input
                 type="text"
-                placeholder="搜索目的地、用户或内容..."
-                className="input-glass w-full pl-10 pr-4"
+                placeholder="搜索..."
+                className="input-glass w-full pl-8 pr-3 h-9 text-sm"
               />
-              <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <IconSearch className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             </div>
           </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             {/* Notifications */}
             <div className="relative">
-              <button className="tab-glass p-2 hover:scale-110 transition-transform">
-                <IconBell className="w-5 h-5 text-gray-600" />
+              <button className="tab-glass p-1.5 hover:scale-110 transition-transform">
+                <IconBell className="w-4 h-4 text-gray-600" />
               </button>
-              <div className="absolute -top-1 -right-1 w-3 h-3 gradient-secondary rounded-full"></div>
+              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 gradient-secondary rounded-full"></div>
             </div>
 
             {/* Messages */}
-            <Link to="/app/messages" className="tab-glass p-2 hover:scale-110 transition-transform">
-              <IconMessage className="w-5 h-5 text-gray-600" />
+            <Link to="/app/messages" className="tab-glass p-1.5 hover:scale-110 transition-transform">
+              <IconMessage className="w-4 h-4 text-gray-600" />
             </Link>
 
             {/* User Menu */}
             <Menu shadow="lg" width={280} position="bottom-end" offset={8}>
               <Menu.Target>
-                <button className="flex items-center space-x-3 tab-glass px-3 py-2 hover:scale-105 transition-all duration-200">
-                  <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
+                <button className="flex items-center space-x-2 tab-glass px-2 py-1.5 hover:scale-105 transition-all duration-200">
+                  <div className="w-7 h-7 gradient-primary rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xs font-medium">
                       {user?.email?.charAt(0).toUpperCase() || 'U'}
                     </span>
                   </div>
-                  <span className="hidden sm:block font-medium text-gray-700">
+                  <span className="hidden sm:block font-medium text-gray-700 text-sm">
                     {user?.email?.split('@')[0] || '用户'}
                   </span>
-                  <IconChevronDown className="w-4 h-4 text-gray-400" />
+                  <IconChevronDown className="w-3 h-3 text-gray-400" />
                 </button>
               </Menu.Target>
               
