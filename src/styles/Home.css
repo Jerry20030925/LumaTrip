@@ -415,7 +415,8 @@
 @media (max-width: 767px) {
   .hero-section {
     padding: 1.5rem 1rem;
-    min-height: calc(100vh - 72px);
+    min-height: calc(100vh - 120px); /* 为新的双层导航留出空间 */
+    margin-top: 120px; /* 为固定导航留出空间 */
   }
   
   .hero-layout {

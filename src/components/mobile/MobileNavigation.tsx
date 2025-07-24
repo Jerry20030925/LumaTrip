@@ -175,7 +175,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
       </AnimatePresence>
 
       {/* Top Navigation for Mobile */}
-      <nav className="mobile-nav-top fixed top-0 left-0 right-0 bg-white/98 dark:bg-gray-900/98 backdrop-filter backdrop-blur-xl border-b border-gray-200/30 dark:border-gray-700/30 md:hidden shadow-sm">
+      <nav className="mobile-nav-top fixed top-0 left-0 right-0 bg-white/98 dark:bg-gray-900/98 backdrop-filter backdrop-blur-xl border-b border-gray-200/30 dark:border-gray-700/30 block md:hidden shadow-sm z-50">
         <div className="px-4 py-3">
           {/* Main Header Row */}
           <div className="flex items-center justify-between">
