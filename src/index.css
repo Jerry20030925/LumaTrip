@@ -3,6 +3,48 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 强制移动端导航显示 - 紧急修复 */
+@media (max-width: 767px) {
+  .mobile-nav-top {
+    display: flex !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(16px) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* 确保桌面端导航在移动端隐藏 */
+  .nav-enhanced,
+  .desktop-header,
+  header.nav-enhanced {
+    display: none !important;
+  }
+  
+  /* 确保移动端导航组件显示 */
+  .md\\:hidden {
+    display: block !important;
+  }
+  
+  /* 为移动端导航留出空间 */
+  .hero-section {
+    margin-top: 120px !important;
+    padding-top: 1.5rem !important;
+  }
+}
+
+/* 桌面端确保移动端导航隐藏 */
+@media (min-width: 768px) {
+  .mobile-nav-top,
+  .mobile-nav-bottom {
+    display: none !important;
+  }
+}
+
 /* 自定义 CSS 变量 */
 :root {
   --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

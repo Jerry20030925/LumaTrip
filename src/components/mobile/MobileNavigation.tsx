@@ -23,6 +23,56 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
   const location = useLocation();
   const navigate = useNavigate();
 
+  // 强制确保移动端导航可见
+  useEffect(() => {
+    const checkAndForceDisplay = () => {
+      const isMobile = window.innerWidth < 768;
+      if (isMobile) {
+        // 强制显示移动端导航
+        const mobileNavTop = document.querySelector('.mobile-nav-top');
+        const mobileNavBottom = document.querySelector('.mobile-nav-bottom');
+        
+        if (mobileNavTop) {
+          (mobileNavTop as HTMLElement).style.display = 'flex';
+          (mobileNavTop as HTMLElement).style.position = 'fixed';
+          (mobileNavTop as HTMLElement).style.top = '0';
+          (mobileNavTop as HTMLElement).style.left = '0';
+          (mobileNavTop as HTMLElement).style.right = '0';
+          (mobileNavTop as HTMLElement).style.zIndex = '9999';
+          (mobileNavTop as HTMLElement).style.background = 'rgba(255, 255, 255, 0.98)';
+          (mobileNavTop as HTMLElement).style.backdropFilter = 'blur(16px)';
+        }
+        
+        if (mobileNavBottom) {
+          (mobileNavBottom as HTMLElement).style.display = 'grid';
+          (mobileNavBottom as HTMLElement).style.position = 'fixed';
+          (mobileNavBottom as HTMLElement).style.bottom = '0';
+          (mobileNavBottom as HTMLElement).style.zIndex = '9999';
+        }
+        
+        // 隐藏桌面端导航
+        const desktopHeaders = document.querySelectorAll('.nav-enhanced, .desktop-header, header.nav-enhanced');
+        desktopHeaders.forEach(header => {
+          (header as HTMLElement).style.display = 'none';
+        });
+      }
+    };
+
+    // 立即执行
+    checkAndForceDisplay();
+    
+    // 监听窗口大小变化
+    window.addEventListener('resize', checkAndForceDisplay);
+    
+    // 延迟执行确保DOM完全加载
+    const timer = setTimeout(checkAndForceDisplay, 100);
+    
+    return () => {
+      window.removeEventListener('resize', checkAndForceDisplay);
+      clearTimeout(timer);
+    };
+  }, []);
+
   const mainNavItems = [
     { id: 'home', label: '首页', icon: Home, path: '/app/home' },
     { id: 'search', label: '搜索', icon: Search, path: '/app/search' },
