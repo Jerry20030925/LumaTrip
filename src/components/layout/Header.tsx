@@ -1,173 +1,146 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { 
+  Menu
+} from '@mantine/core';
+import { 
+  IconSearch, 
+  IconBell, 
+  IconUser, 
+  IconSettings, 
+  IconLogout, 
+  IconChevronDown,
+  IconHome,
+  IconCompass,
+  IconMap,
+  IconMessage
+} from '@tabler/icons-react';
 import { useAuth } from '../../hooks/useAuth';
-import { AppShell, Group, Button, Anchor, Title, Avatar, Indicator, ActionIcon, Menu, rem } from '@mantine/core';
-import { IconBell, IconSearch, IconUser, IconSettings, IconLogout, IconChevronDown } from '@tabler/icons-react';
 
 const Header: React.FC = () => {
-  const { t } = useTranslation();
-  const { isAuthenticated, logout, user } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
 
-  const isActivePage = (path: string) => {
-    return location.pathname === path;
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
-  const navLinkStyle = (path: string) => ({
-    color: isActivePage(path) ? '#1976d2' : 'inherit',
-    fontWeight: isActivePage(path) ? 600 : 400,
-    textDecoration: 'none',
-    padding: '8px 16px',
-    borderRadius: '8px',
-    transition: 'all 0.2s ease',
-    ':hover': {
-      backgroundColor: '#f5f5f5',
-      color: '#1976d2'
-    }
-  });
-
   return (
-    <AppShell.Header p="md" style={{ 
-      borderBottom: '1px solid #e0e0e0',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(10px)',
-      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-    }}>
-      <Group justify="space-between" h="100%">
-        {/* Logo */}
-        <Anchor component={Link} to="/" underline="never" style={{ color: 'inherit' }}>
-          <Group gap="xs">
-            <img 
-              src="/luma-logo.svg" 
-              alt="LumaTrip Logo" 
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: '8px'
-              }}
-            />
-            <Title order={3} style={{ 
-              background: 'linear-gradient(135deg, #87CEEB 0%, #5DADE2 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              fontWeight: 700
-            }}>
-              LumaTrip
-            </Title>
-          </Group>
-        </Anchor>
+    <header className="nav-enhanced">
+      <div className="max-w-7xl mx-auto px-6 py-3">
+        <div className="flex items-center justify-between">
+          {/* Logo and Brand */}
+          <div className="flex items-center space-x-4">
+            <Link to="/app/home" className="flex items-center space-x-3 group">
+              <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span className="text-white font-bold text-lg">L</span>
+              </div>
+              <span className="text-xl font-bold text-gradient-primary hidden sm:block">
+                LumaTrip
+              </span>
+            </Link>
+            
+            {/* Navigation Links */}
+            <nav className="hidden lg:flex items-center space-x-1">
+              {[
+                { to: '/app/home', icon: <IconHome className="w-4 h-4" />, label: '主页' },
+                { to: '/app/discover', icon: <IconCompass className="w-4 h-4" />, label: '发现' },
+                { to: '/app/map-example', icon: <IconMap className="w-4 h-4" />, label: '地图' },
+                { to: '/app/messages', icon: <IconMessage className="w-4 h-4" />, label: '消息' }
+              ].map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`tab-glass flex items-center space-x-2 px-3 py-2 hover:scale-105 transition-all duration-200 ${
+                    location.pathname === item.to ? 'active' : ''
+                  }`}
+                >
+                  {item.icon}
+                  <span className="font-medium">{item.label}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
 
-        {/* Navigation Links */}
-        <Group gap="xs" visibleFrom="sm">
-          <Anchor component={Link} to="/" style={navLinkStyle('/')}>
-            {t('home')}
-          </Anchor>
-          <Anchor component={Link} to="/discover" style={navLinkStyle('/discover')}>
-            {t('discover') || '发现'}
-          </Anchor>
-          {isAuthenticated && (
-            <>
-              <Anchor component={Link} to="/messages" style={navLinkStyle('/messages')}>
-                {t('messages')}
-              </Anchor>
-              <Anchor component={Link} to="/app/map-example" style={navLinkStyle('/app/map-example')}>
-                地图
-              </Anchor>
-              <Anchor component={Link} to={`/profile/${user?.id}`} style={navLinkStyle(`/profile/${user?.id}`)}>
-                {t('profile')}
-              </Anchor>
-            </>
-          )}
-        </Group>
+          {/* Search Bar */}
+          <div className="hidden md:flex flex-1 max-w-md mx-8">
+            <div className="relative w-full">
+              <input
+                type="text"
+                placeholder="搜索目的地、用户或内容..."
+                className="input-glass w-full pl-10 pr-4"
+              />
+              <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            </div>
+          </div>
 
-        {/* Right Side Actions */}
-        <Group gap="xs">
-          {/* Search Icon */}
-          <ActionIcon variant="subtle" size="lg" radius="md">
-            <IconSearch style={{ width: rem(20), height: rem(20) }} />
-          </ActionIcon>
+          {/* Right Side Actions */}
+          <div className="flex items-center space-x-3">
+            {/* Notifications */}
+            <div className="relative">
+              <button className="tab-glass p-2 hover:scale-110 transition-transform">
+                <IconBell className="w-5 h-5 text-gray-600" />
+              </button>
+              <div className="absolute -top-1 -right-1 w-3 h-3 gradient-secondary rounded-full"></div>
+            </div>
 
-          {isAuthenticated ? (
-            <>
-              {/* Notifications */}
-              <Indicator inline size={8} offset={7} position="top-end" color="red" withBorder>
-                <ActionIcon variant="subtle" size="lg" radius="md">
-                  <IconBell style={{ width: rem(20), height: rem(20) }} />
-                </ActionIcon>
-              </Indicator>
+            {/* Messages */}
+            <Link to="/app/messages" className="tab-glass p-2 hover:scale-110 transition-transform">
+              <IconMessage className="w-5 h-5 text-gray-600" />
+            </Link>
 
-              {/* User Menu */}
-              <Menu shadow="md" width={200} position="bottom-end">
-                <Menu.Target>
-                  <Group style={{ cursor: 'pointer' }} gap="xs">
-                    <Avatar 
-                      src={user?.user_metadata?.avatar_url} 
-                      size={32} 
-                      radius="xl"
-                      style={{ border: '2px solid #e0e0e0' }}
-                    >
-                      <IconUser size={16} />
-                    </Avatar>
-                    <IconChevronDown size={14} style={{ color: '#666' }} />
-                  </Group>
-                </Menu.Target>
-
-                <Menu.Dropdown>
-                  <Menu.Label>我的账户</Menu.Label>
-                  <Menu.Item 
-                    component={Link} 
-                    to={`/profile/${user?.id}`}
-                    leftSection={<IconUser style={{ width: rem(14), height: rem(14) }} />}
-                  >
-                    个人资料
-                  </Menu.Item>
-                  <Menu.Item 
-                    component={Link} 
-                    to="/settings"
-                    leftSection={<IconSettings style={{ width: rem(14), height: rem(14) }} />}
-                  >
-                    设置
-                  </Menu.Item>
-                  <Menu.Divider />
-                  <Menu.Item 
-                    color="red"
-                    leftSection={<IconLogout style={{ width: rem(14), height: rem(14) }} />}
-                    onClick={logout}
-                  >
-                    退出登录
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
-            </>
-          ) : (
-            <Group gap="xs">
-              <Button 
-                component={Link} 
-                to="/login" 
-                variant="subtle"
-                size="sm"
-                radius="md"
-              >
-                {t('login')}
-              </Button>
-              <Button 
-                component={Link} 
-                to="/register"
-                size="sm"
-                radius="md"
-                style={{
-                  background: 'linear-gradient(135deg, #87CEEB 0%, #4682B4 100%)',
-                  border: 'none'
-                }}
-              >
-                {t('register')}
-              </Button>
-            </Group>
-          )}
-        </Group>
-      </Group>
-    </AppShell.Header>
+            {/* User Menu */}
+            <Menu shadow="lg" width={280} position="bottom-end" offset={8}>
+              <Menu.Target>
+                <button className="flex items-center space-x-3 tab-glass px-3 py-2 hover:scale-105 transition-all duration-200">
+                  <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center">
+                    <span className="text-white text-sm font-medium">
+                      {user?.email?.charAt(0).toUpperCase() || 'U'}
+                    </span>
+                  </div>
+                  <span className="hidden sm:block font-medium text-gray-700">
+                    {user?.email?.split('@')[0] || '用户'}
+                  </span>
+                  <IconChevronDown className="w-4 h-4 text-gray-400" />
+                </button>
+              </Menu.Target>
+              
+              <Menu.Dropdown className="glass-effect border border-white/20">
+                <Menu.Label className="text-gray-600">我的账户</Menu.Label>
+                <Menu.Item 
+                  component={Link} 
+                  to="/app/profile"
+                  leftSection={<IconUser className="w-4 h-4 text-blue-600" />}
+                  className="hover:bg-blue-50 rounded-lg transition-colors"
+                >
+                  <span className="text-gray-700">个人资料</span>
+                </Menu.Item>
+                <Menu.Item 
+                  component={Link} 
+                  to="/app/settings"
+                  leftSection={<IconSettings className="w-4 h-4 text-purple-600" />}
+                  className="hover:bg-purple-50 rounded-lg transition-colors"
+                >
+                  <span className="text-gray-700">设置</span>
+                </Menu.Item>
+                <Menu.Divider />
+                <Menu.Item
+                  onClick={handleLogout}
+                  leftSection={<IconLogout className="w-4 h-4 text-red-600" />}
+                  className="hover:bg-red-50 rounded-lg transition-colors"
+                >
+                  <span className="text-red-600">退出登录</span>
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </div>
+        </div>
+      </div>
+    </header>
   );
 };
 

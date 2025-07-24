@@ -86,7 +86,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
   return (
     <>
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 z-50 md:hidden">
+      <nav className="mobile-nav-bottom fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-filter backdrop-blur-xl border-t border-gray-200/50 dark:border-gray-700/50 md:hidden shadow-lg">
         <div className="grid grid-cols-5 h-16">
           {mainNavItems.map(item => {
             const Icon = item.icon;
@@ -133,37 +133,32 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-60 flex items-end justify-center p-4 md:hidden"
+            className="fixed inset-0 bg-black bg-opacity-50 z-[10001] flex items-end justify-center p-4 md:hidden"
             onClick={() => setShowCreateMenu(false)}
           >
             <motion.div
-              initial={{ y: 300 }}
+              initial={{ y: '100%' }}
               animate={{ y: 0 }}
-              exit={{ y: 300 }}
+              exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-sm"
+              className="w-full max-w-sm bg-white dark:bg-gray-900 rounded-t-3xl p-6 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="text-center mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  创建内容
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  选择你想要创建的内容类型
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-6"></div>
+              
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
+                创建内容
+              </h3>
+              
+              <div className="space-y-3">
                 {createOptions.map(option => (
                   <button
                     key={option.id}
                     onClick={() => handleCreateOption(option.id)}
-                    className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                    className="w-full flex items-center space-x-4 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
-                    <div className="text-2xl mb-2">{option.icon}</div>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
-                      {option.label}
-                    </span>
+                    <span className="text-2xl">{option.icon}</span>
+                    <span className="text-gray-900 dark:text-white font-medium">{option.label}</span>
                   </button>
                 ))}
               </div>
@@ -180,7 +175,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
       </AnimatePresence>
 
       {/* Top Navigation for Mobile */}
-      <nav className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-50 md:hidden">
+      <nav className="mobile-nav-top fixed top-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-filter backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 md:hidden shadow-sm">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center space-x-3">
             <button
@@ -199,19 +194,9 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
               </span>
             </div>
           </div>
-
+          
           <div className="flex items-center space-x-2">
-            <button
-              onClick={() => navigate('/search')}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
-            >
-              <Search className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </button>
-            
-            <button
-              onClick={() => navigate('/notifications')}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors relative"
-            >
+            <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors relative">
               <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               {notificationCount > 0 && (
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
@@ -232,7 +217,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-60 md:hidden"
+            className="mobile-menu-overlay fixed inset-0 bg-black bg-opacity-50 md:hidden"
             onClick={() => setIsMenuOpen(false)}
           >
             <motion.div

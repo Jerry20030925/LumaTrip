@@ -49,11 +49,19 @@ const AuthCallback: React.FC = () => {
 
         if (initialSession.session && initialSession.session.user) {
           addDebugInfo(`Found valid session for: ${initialSession.session.user.email}`);
+          
+          // 强制设置全局认证状态
           setSession(initialSession.session);
           
-          // 直接重定向，避免状态更新延迟
-          addDebugInfo('Redirecting to /app/home...');
-          window.location.href = '/app/home';
+          // 清除任何可能的重定向状态
+          localStorage.removeItem('lumatrip-redirect');
+          
+          // 等待一小段时间确保状态更新
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          // 使用 window.location.replace 强制跳转，不留历史记录
+          addDebugInfo('Force redirecting to /app/home using window.location.replace...');
+          window.location.replace('/app/home');
           return;
         }
 
@@ -81,11 +89,19 @@ const AuthCallback: React.FC = () => {
             
             if (sessionData.session && sessionData.session.user) {
               addDebugInfo(`Retry success: Found session for ${sessionData.session.user.email}`);
+              
+              // 强制设置全局状态
               setSession(sessionData.session);
               
-              // 使用 window.location.href 确保完全重新加载页面
-              addDebugInfo('Redirecting to /app/home via window.location...');
-              window.location.href = '/app/home';
+              // 清除重定向状态
+              localStorage.removeItem('lumatrip-redirect');
+              
+              // 等待状态更新
+              await new Promise(resolve => setTimeout(resolve, 200));
+              
+              // 使用 window.location.replace 确保完全重新加载页面，不回到着陆页
+              addDebugInfo('Redirecting to /app/home via window.location.replace...');
+              window.location.replace('/app/home');
               return;
             }
             
@@ -143,13 +159,13 @@ const AuthCallback: React.FC = () => {
             <p className="mb-3">如果页面长时间无响应，请尝试以下操作：</p>
             <div className="space-y-2">
               <button 
-                onClick={() => window.location.href = '/app/home'}
+                onClick={() => window.location.replace('/app/home')}
                 className="block w-full px-4 py-2 text-blue-600 hover:text-blue-800 border border-blue-200 rounded hover:bg-blue-50"
               >
                 直接进入应用
               </button>
               <button 
-                onClick={() => window.location.href = '/login'}
+                onClick={() => window.location.replace('/login')}
                 className="block w-full px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-200 rounded hover:bg-gray-50"
               >
                 返回登录页面

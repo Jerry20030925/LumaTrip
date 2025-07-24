@@ -26,6 +26,7 @@ export interface GoogleMapProps {
   style?: React.CSSProperties;
   className?: string;
   mapStyle?: 'standard' | 'minimal' | 'dark' | google.maps.MapTypeStyle[];
+  mapId?: string; // 添加地图ID支持
   onMapClick?: (event: google.maps.MapMouseEvent) => void;
   onMapLoad?: (map: google.maps.Map) => void;
   showUserLocation?: boolean;
@@ -37,16 +38,17 @@ export interface GoogleMapProps {
 }
 
 const GoogleMap: React.FC<GoogleMapProps> = ({
-  center = { lat: 39.8283, lng: -98.5795 }, // 美国中心点
+  center,
   zoom = 10,
-  markers = [],
-  style = { width: '100%', height: '400px' },
-  className = '',
   mapStyle = 'standard',
+  mapId = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || '5f3221ae956a146771ae1d1e', // 使用环境变量或默认值
+  markers = [],
   onMapClick,
   onMapLoad,
   showUserLocation = false,
-  gestureHandling = 'auto',
+  style = { width: '100%', height: '400px' },
+  className = '',
+  gestureHandling = 'cooperative',
   disableDefaultUI = false,
   zoomControl = true,
   streetViewControl = false,
@@ -80,26 +82,35 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
 
       await initializeGoogleMaps(config);
 
-      // 获取地图样式
-      let styles: google.maps.MapTypeStyle[] = [];
-      if (typeof mapStyle === 'string') {
+      // 获取地图样式 - 如果有mapId，则不使用styles
+      let styles: google.maps.MapTypeStyle[] | undefined = undefined;
+      if (!mapId && typeof mapStyle === 'string') {
         styles = mapStyles[mapStyle] || [];
-      } else {
+      } else if (!mapId && Array.isArray(mapStyle)) {
         styles = mapStyle;
       }
 
-      // 创建地图实例
-      const mapInstance = new google.maps.Map(mapRef.current, {
+      // 创建地图实例配置
+      const mapOptions: google.maps.MapOptions = {
         center,
         zoom,
-        styles,
         gestureHandling,
         disableDefaultUI,
         zoomControl,
         streetViewControl,
         fullscreenControl,
         mapTypeControl: !disableDefaultUI
-      });
+      };
+
+      // 如果有mapId，使用mapId而不是styles
+      if (mapId) {
+        mapOptions.mapId = mapId;
+      } else if (styles) {
+        mapOptions.styles = styles;
+      }
+
+      // 创建地图实例
+      const mapInstance = new google.maps.Map(mapRef.current, mapOptions);
 
       mapInstanceRef.current = mapInstance;
 
@@ -123,6 +134,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
     center,
     zoom,
     mapStyle,
+    mapId, // 添加mapId到依赖数组
     onMapClick,
     onMapLoad,
     gestureHandling,

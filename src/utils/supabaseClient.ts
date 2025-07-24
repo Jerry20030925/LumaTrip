@@ -15,6 +15,25 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    // 设置自定义存储以确保 session 持久化
+    storage: {
+      getItem: (key: string) => {
+        if (typeof localStorage !== 'undefined') {
+          return localStorage.getItem(key);
+        }
+        return null;
+      },
+      setItem: (key: string, value: string) => {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(key, value);
+        }
+      },
+      removeItem: (key: string) => {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.removeItem(key);
+        }
+      }
+    }
   }
 });

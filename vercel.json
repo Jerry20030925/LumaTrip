@@ -15,6 +15,17 @@
       ],
       "destination": "https://www.lumatrip.com/$1",
       "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "luma-trip-jianwei-chens-projects.vercel.app"
+        }
+      ],
+      "destination": "https://www.lumatrip.com/$1",
+      "permanent": true
     }
   ],
   "rewrites": [

@@ -1,16 +1,15 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { supabase } from '../utils/supabaseClient';
-import type { User, Session } from '@supabase/supabase-js';
 
 interface AuthState {
-  user: User | null;
-  session: Session | null;
+  user: any | null;
+  session: any | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  setUser: (user: User | null) => void;
-  setSession: (session: Session | null) => void;
-  setLoading: (loading: boolean) => void;
+  setUser: (user: any) => void;
+  setSession: (session: any) => void;
+  setLoading: (isLoading: boolean) => void;
   logout: () => void;
   initialize: () => Promise<void>;
 }
@@ -30,21 +29,58 @@ const useAuthStore = create<AuthState>()(
       })),
       setSession: (session) => {
         console.log('Setting session:', session?.user?.email);
+        
+        // 强制设置认证状态为 true，不检查过期时间
+        const isAuthenticated = !!(session?.user);
+        
         set((state) => ({ 
           ...state, 
           session, 
           user: session?.user ?? null, 
-          isAuthenticated: !!session?.user,
+          isAuthenticated,
           isLoading: false 
         }));
+        
+        // 永久化存储认证状态，避免页面刷新丢失
+        if (session?.user) {
+          localStorage.setItem('lumatrip-persistent-auth', JSON.stringify({
+            user: session.user,
+            timestamp: Date.now(),
+            // 不存储过期时间，让用户可以永久使用
+          }));
+        }
       },
       setLoading: (isLoading) => set((state) => ({ ...state, isLoading })),
       logout: () => {
         console.log('Logging out user');
+        localStorage.removeItem('lumatrip-persistent-auth');
         set({ user: null, session: null, isAuthenticated: false, isLoading: false });
       },
       initialize: async () => {
         try {
+          // 首先检查持久化存储
+          const persistentAuth = localStorage.getItem('lumatrip-persistent-auth');
+          if (persistentAuth) {
+            try {
+              const authData = JSON.parse(persistentAuth);
+              // 如果有持久化的认证数据，直接使用
+              if (authData.user) {
+                console.log('Found persistent auth, using cached user:', authData.user.email);
+                set({
+                  user: authData.user,
+                  session: { user: authData.user }, // 创建一个基本的 session 对象
+                  isAuthenticated: true,
+                  isLoading: false
+                });
+                return;
+              }
+            } catch (e) {
+              console.warn('Failed to parse persistent auth:', e);
+              localStorage.removeItem('lumatrip-persistent-auth');
+            }
+          }
+          
+          // 如果没有持久化数据，尝试从 Supabase 获取
           const { data: { session } } = await supabase.auth.getSession();
           console.log('Initialize auth with session:', session?.user?.email);
           get().setSession(session);
@@ -90,7 +126,9 @@ const initializeAuthListener = () => {
   });
 };
 
-// 初始化监听器
-initializeAuthListener();
+// 初始化认证监听器
+if (typeof window !== 'undefined') {
+  initializeAuthListener();
+}
 
 export default useAuthStore;

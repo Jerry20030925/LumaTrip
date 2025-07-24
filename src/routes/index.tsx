@@ -12,6 +12,7 @@ import Notifications from '../pages/Notifications';
 import SearchPage from '../components/search/SearchPage';
 import DebugPage from '../pages/DebugPage';
 import AuthCallback from '../pages/AuthCallback';
+import AuthDebugPage from '../pages/AuthDebugPage';
 import MapExample from '../pages/MapExample';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
@@ -63,12 +64,17 @@ const routes: RouteObject[] = [
     path: '/debug',
     element: <DebugPage />,
   },
+  // 认证状态调试页面 - 不需要认证
+  {
+    path: '/auth-debug',
+    element: <AuthDebugPage />,
+  },
   // 地图示例页面 - 不需要认证（方便演示）
   {
     path: '/map-demo',
     element: <MapExample />,
   },
-  // 捕获所有未匹配的路径
+  // 错误边界
   {
     path: '*',
     element: (

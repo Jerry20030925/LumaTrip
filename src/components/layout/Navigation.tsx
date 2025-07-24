@@ -4,10 +4,10 @@ const Navigation: React.FC = () => {
   return (
     <nav>
       <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/discover">Discover</a></li>
-        <li><a href="/messages">Messages</a></li>
-        <li><a href="/profile">Profile</a></li>
+        <li><a href="/app/home">Home</a></li>
+        <li><a href="/app/discover">Discover</a></li>
+        <li><a href="/app/messages">Messages</a></li>
+        <li><a href="/app/profile">Profile</a></li>
       </ul>
     </nav>
   );
