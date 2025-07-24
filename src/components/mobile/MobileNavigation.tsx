@@ -175,37 +175,100 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
       </AnimatePresence>
 
       {/* Top Navigation for Mobile */}
-      <nav className="mobile-nav-top fixed top-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-filter backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 md:hidden shadow-sm">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => setIsMenuOpen(true)}
-              className="p-2 -ml-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
-            >
-              <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </button>
-            
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">L</span>
+      <nav className="mobile-nav-top fixed top-0 left-0 right-0 bg-white/98 dark:bg-gray-900/98 backdrop-filter backdrop-blur-xl border-b border-gray-200/30 dark:border-gray-700/30 md:hidden shadow-sm">
+        <div className="px-4 py-3">
+          {/* Main Header Row */}
+          <div className="flex items-center justify-between">
+            {/* Left Section */}
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setIsMenuOpen(true)}
+                className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 hover:scale-105"
+                aria-label="打开菜单"
+              >
+                <Menu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              </button>
+              
+              <div className="flex items-center space-x-2.5">
+                <div className="w-9 h-9 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-sm">L</span>
+                </div>
+                <div>
+                  <span className="text-lg font-bold text-gray-900 dark:text-white">
+                    LumaTrip
+                  </span>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 -mt-0.5">
+                    智能旅行助手
+                  </div>
+                </div>
               </div>
-              <span className="text-lg font-bold text-gray-900 dark:text-white">
-                LumaTrip
-              </span>
+            </div>
+            
+            {/* Right Section */}
+            <div className="flex items-center space-x-2">
+              {/* Search Button */}
+              <button 
+                className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 hover:scale-105"
+                aria-label="搜索"
+              >
+                <Search className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              </button>
+              
+              {/* Notifications */}
+              <button 
+                className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 hover:scale-105 relative"
+                aria-label="通知"
+              >
+                <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                {notificationCount > 0 && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+                    <span className="text-xs text-white font-bold">
+                      {notificationCount > 9 ? '9+' : notificationCount}
+                    </span>
+                  </div>
+                )}
+              </button>
+              
+              {/* User Avatar */}
+              <button 
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200 hover:scale-105"
+                aria-label="用户菜单"
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center shadow-md">
+                  <span className="text-white font-semibold text-sm">
+                    {currentUser?.name?.charAt(0) || 'U'}
+                  </span>
+                </div>
+              </button>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors relative">
-              <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              {notificationCount > 0 && (
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                  <span className="text-xs text-white font-medium">
-                    {notificationCount > 9 ? '9+' : notificationCount}
-                  </span>
-                </div>
-              )}
-            </button>
+          {/* Secondary Row - Quick Actions */}
+          <div className="flex items-center justify-center space-x-1 mt-3 pb-1">
+            {[
+              { icon: Home, label: '首页', path: '/app/home' },
+              { icon: Search, label: '发现', path: '/app/discover' },
+              { icon: MessageCircle, label: '消息', path: '/app/messages' },
+              { icon: User, label: '我的', path: '/app/profile' }
+            ].map((item, index) => {
+              const Icon = item.icon;
+              const itemIsActive = isActive(item.path);
+              
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleNavigation(item.path)}
+                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 ${
+                    itemIsActive 
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="text-xs font-medium">{item.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </nav>
