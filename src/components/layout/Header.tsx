@@ -31,8 +31,8 @@ const Header: React.FC = () => {
 
   return (
     <header className="nav-enhanced">
-      <div className="max-w-7xl mx-auto px-4 py-2">
-        <div className="flex items-center justify-between h-12">
+      <div className="max-w-7xl mx-auto px-4 py-3">
+        <div className="flex items-center justify-between h-14">
           {/* Logo and Brand */}
           <div className="flex items-center space-x-4">
             <Link to="/app/home" className="flex items-center space-x-2 group">
