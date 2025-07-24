@@ -1,265 +1,531 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useAuth } from '../hooks/useAuth';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Home } from 'lucide-react';
-import './Settings.css';
+import {
+  Container,
+  Paper,
+  Title,
+  Text,
+  Stack,
+  Group,
+  Button,
+  Switch,
+  Select,
+  Card,
+  Divider,
+  ActionIcon,
+  Alert,
+  Badge,
+  Progress
+} from '@mantine/core';
+import {
+  ArrowLeft,
+  User,
+  Bell,
+  Shield,
+  Palette,
+  Download,
+  Trash2,
+  Database,
+  Smartphone
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Settings: React.FC = () => {
-  const { t, i18n } = useTranslation();
-  const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('general');
+  const navigate = useNavigate();
+  
+  const [settings, setSettings] = useState({
+    // 通知设置
+    pushNotifications: true,
+    emailNotifications: true,
+    smsNotifications: false,
+    postLikes: true,
+    postComments: true,
+    newFollowers: true,
+    systemUpdates: true,
+    
+    // 隐私设置
+    profileVisibility: 'public',
+    showEmail: false,
+    showLocation: true,
+    allowTagging: true,
+    dataCollection: true,
+    
+    // 显示设置
+    theme: 'auto',
+    language: 'zh-CN',
+    fontSize: 'medium',
+    animations: true,
+    
+    // 其他设置
+    autoSave: true,
+    offlineMode: false,
+    soundEffects: true,
+    hapticFeedback: true,
+    locationServices: true
+  });
 
-  const languages = [
-    { code: 'en', name: t('english'), flag: '🇺🇸' },
-    { code: 'zh-CN', name: t('chinese_simplified'), flag: '🇨🇳' },
-    { code: 'zh-TW', name: t('chinese_traditional'), flag: '🇹🇼' },
-    { code: 'ja', name: t('japanese'), flag: '🇯🇵' },
-    { code: 'ko', name: t('korean'), flag: '🇰🇷' },
-  ];
+  const [storageUsage] = useState({
+    total: 2048, // MB
+    used: 512,   // MB
+    cache: 128,  // MB
+    images: 256, // MB
+    data: 128    // MB
+  });
 
-  const handleLanguageChange = (languageCode: string) => {
-    i18n.changeLanguage(languageCode);
+  const handleSettingChange = (key: string, value: any) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Logout failed:', error);
+  const clearCache = () => {
+    // 清除缓存逻辑
+    console.log('Clearing cache...');
+  };
+
+  const exportData = () => {
+    // 导出数据逻辑
+    console.log('Exporting user data...');
+  };
+
+  const deleteAccount = () => {
+    // 删除账户逻辑
+    if (window.confirm('确定要删除账户吗？此操作不可恢复。')) {
+      console.log('Deleting account...');
     }
   };
 
-  const tabs = [
-    { id: 'general', label: t('general'), icon: '⚙️' },
-    { id: 'account', label: t('account'), icon: '👤' },
-    { id: 'notifications', label: t('notifications'), icon: '🔔' },
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* 导航头部 */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-white/20 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              {/* 返回按钮 */}
-              <Link 
-                to="/app/home"
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 rounded-xl transition-colors group"
-              >
-                <ArrowLeft className="w-4 h-4 text-blue-600 group-hover:translate-x-[-2px] transition-transform" />
-                <span className="text-blue-600 font-medium">返回主页</span>
-              </Link>
-              
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                  <span className="text-2xl">⚙️</span>
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">设置</h1>
-                  <p className="text-sm text-gray-500">管理您的账户和偏好设置</p>
-                </div>
+    <Container size="md" px="md" style={{ minHeight: '100vh', paddingTop: '2rem' }}>
+      <Stack gap="xl">
+        {/* 头部 */}
+        <Paper p="xl" radius="xl" shadow="sm" style={{
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)',
+          border: '1px solid rgba(255, 255, 255, 0.2)'
+        }}>
+          <Group gap="sm">
+            <ActionIcon variant="subtle" onClick={() => navigate(-1)}>
+              <ArrowLeft size={20} />
+            </ActionIcon>
+            <div>
+              <Title order={1} size="xl">设置</Title>
+              <Text size="md" c="dimmed" mt="xs">
+                管理您的账户设置和应用偏好
+              </Text>
+            </div>
+          </Group>
+        </Paper>
+
+        {/* 账户设置 */}
+        <Card padding="xl" radius="xl" shadow="sm">
+          <Stack gap="md">
+            <Group gap="sm">
+              <User size={20} />
+              <Title order={3}>账户设置</Title>
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>编辑个人资料</Text>
+                <Text size="sm" c="dimmed">更新您的个人信息和头像</Text>
               </div>
+              <Button variant="outline" onClick={() => navigate('/app/profile')}>
+                编辑
+              </Button>
+            </Group>
+            
+            <Divider />
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>更改密码</Text>
+                <Text size="sm" c="dimmed">为您的账户设置新密码</Text>
+              </div>
+              <Button variant="outline">
+                更改
+              </Button>
+            </Group>
+          </Stack>
+        </Card>
+
+        {/* 通知设置 */}
+        <Card padding="xl" radius="xl" shadow="sm">
+          <Stack gap="md">
+            <Group gap="sm">
+              <Bell size={20} />
+              <Title order={3}>通知设置</Title>
+            </Group>
+            
+            <Stack gap="sm">
+              <Group justify="space-between">
+                <div>
+                  <Text fw={500}>推送通知</Text>
+                  <Text size="sm" c="dimmed">接收应用推送通知</Text>
+                </div>
+                <Switch
+                  checked={settings.pushNotifications}
+                  onChange={(e) => handleSettingChange('pushNotifications', e.currentTarget.checked)}
+                />
+              </Group>
+              
+              <Group justify="space-between">
+                <div>
+                  <Text fw={500}>邮件通知</Text>
+                  <Text size="sm" c="dimmed">接收邮件通知</Text>
+                </div>
+                <Switch
+                  checked={settings.emailNotifications}
+                  onChange={(e) => handleSettingChange('emailNotifications', e.currentTarget.checked)}
+                />
+              </Group>
+              
+              <Group justify="space-between">
+                <div>
+                  <Text fw={500}>短信通知</Text>
+                  <Text size="sm" c="dimmed">接收短信通知</Text>
+                </div>
+                <Switch
+                  checked={settings.smsNotifications}
+                  onChange={(e) => handleSettingChange('smsNotifications', e.currentTarget.checked)}
+                />
+              </Group>
+              
+              <Divider />
+              
+              <Text size="sm" fw={500} c="dimmed">通知类型</Text>
+              
+              <Group justify="space-between">
+                <Text size="sm">帖子点赞</Text>
+                <Switch
+                  size="sm"
+                  checked={settings.postLikes}
+                  onChange={(e) => handleSettingChange('postLikes', e.currentTarget.checked)}
+                />
+              </Group>
+              
+              <Group justify="space-between">
+                <Text size="sm">帖子评论</Text>
+                <Switch
+                  size="sm"
+                  checked={settings.postComments}
+                  onChange={(e) => handleSettingChange('postComments', e.currentTarget.checked)}
+                />
+              </Group>
+              
+              <Group justify="space-between">
+                <Text size="sm">新粉丝</Text>
+                <Switch
+                  size="sm"
+                  checked={settings.newFollowers}
+                  onChange={(e) => handleSettingChange('newFollowers', e.currentTarget.checked)}
+                />
+              </Group>
+            </Stack>
+          </Stack>
+        </Card>
+
+        {/* 隐私设置 */}
+        <Card padding="xl" radius="xl" shadow="sm">
+          <Stack gap="md">
+            <Group gap="sm">
+              <Shield size={20} />
+              <Title order={3}>隐私设置</Title>
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>个人资料可见性</Text>
+                <Text size="sm" c="dimmed">控制谁可以查看您的个人资料</Text>
+              </div>
+              <Select
+                value={settings.profileVisibility}
+                onChange={(value) => handleSettingChange('profileVisibility', value)}
+                data={[
+                  { value: 'public', label: '公开' },
+                  { value: 'friends', label: '仅好友' },
+                  { value: 'private', label: '私人' }
+                ]}
+                w={120}
+              />
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>显示邮箱地址</Text>
+                <Text size="sm" c="dimmed">在个人资料中显示邮箱</Text>
+              </div>
+              <Switch
+                checked={settings.showEmail}
+                onChange={(e) => handleSettingChange('showEmail', e.currentTarget.checked)}
+              />
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>显示位置信息</Text>
+                <Text size="sm" c="dimmed">在帖子中显示位置信息</Text>
+              </div>
+              <Switch
+                checked={settings.showLocation}
+                onChange={(e) => handleSettingChange('showLocation', e.currentTarget.checked)}
+              />
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>允许标记</Text>
+                <Text size="sm" c="dimmed">允许其他用户在帖子中标记您</Text>
+              </div>
+              <Switch
+                checked={settings.allowTagging}
+                onChange={(e) => handleSettingChange('allowTagging', e.currentTarget.checked)}
+              />
+            </Group>
+          </Stack>
+        </Card>
+
+        {/* 显示设置 */}
+        <Card padding="xl" radius="xl" shadow="sm">
+          <Stack gap="md">
+            <Group gap="sm">
+              <Palette size={20} />
+              <Title order={3}>显示设置</Title>
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>主题</Text>
+                <Text size="sm" c="dimmed">选择应用主题</Text>
+              </div>
+              <Select
+                value={settings.theme}
+                onChange={(value) => handleSettingChange('theme', value)}
+                data={[
+                  { value: 'light', label: '浅色' },
+                  { value: 'dark', label: '深色' },
+                  { value: 'auto', label: '跟随系统' }
+                ]}
+                w={120}
+              />
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>语言</Text>
+                <Text size="sm" c="dimmed">选择界面语言</Text>
+              </div>
+              <Select
+                value={settings.language}
+                onChange={(value) => handleSettingChange('language', value)}
+                data={[
+                  { value: 'zh-CN', label: '简体中文' },
+                  { value: 'zh-TW', label: '繁體中文' },
+                  { value: 'en-US', label: 'English' },
+                  { value: 'ja-JP', label: '日本語' }
+                ]}
+                w={120}
+              />
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>字体大小</Text>
+                <Text size="sm" c="dimmed">调整界面字体大小</Text>
+              </div>
+              <Select
+                value={settings.fontSize}
+                onChange={(value) => handleSettingChange('fontSize', value)}
+                data={[
+                  { value: 'small', label: '小' },
+                  { value: 'medium', label: '中' },
+                  { value: 'large', label: '大' }
+                ]}
+                w={120}
+              />
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>动画效果</Text>
+                <Text size="sm" c="dimmed">启用界面动画效果</Text>
+              </div>
+              <Switch
+                checked={settings.animations}
+                onChange={(e) => handleSettingChange('animations', e.currentTarget.checked)}
+              />
+            </Group>
+          </Stack>
+        </Card>
+
+        {/* 存储管理 */}
+        <Card padding="xl" radius="xl" shadow="sm">
+          <Stack gap="md">
+            <Group gap="sm">
+              <Database size={20} />
+              <Title order={3}>存储管理</Title>
+            </Group>
+            
+            <div>
+              <Group justify="space-between" mb="xs">
+                <Text fw={500}>存储使用情况</Text>
+                <Text size="sm" c="dimmed">
+                  {storageUsage.used} MB / {storageUsage.total} MB
+                </Text>
+              </Group>
+              <Progress
+                value={(storageUsage.used / storageUsage.total) * 100}
+                size="lg"
+                radius="xl"
+                color="blue"
+              />
             </div>
             
-            {/* 快捷导航 */}
-            <div className="flex items-center space-x-3">
-              <Link 
-                to="/app/home"
-                className="p-2 bg-green-100 hover:bg-green-200 rounded-xl transition-colors group"
-                title="主页"
-              >
-                <Home className="w-5 h-5 text-green-600" />
-              </Link>
-              <Link 
-                to="/app/profile"
-                className="p-2 bg-blue-100 hover:bg-blue-200 rounded-xl transition-colors"
-                title="个人资料"
-              >
-                <span className="text-blue-600">👤</span>
-              </Link>
-              <Link 
-                to="/app/map-example"
-                className="p-2 bg-orange-100 hover:bg-orange-200 rounded-xl transition-colors"
-                title="地图"
-              >
-                <span className="text-orange-600">🗺️</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-6 py-6">
-        <div className="bg-white/80 backdrop-blur-lg rounded-2xl border border-white/20 shadow-lg overflow-hidden">
-          <div className="grid lg:grid-cols-4 gap-0">
-            {/* 侧边栏 */}
-            <div className="lg:col-span-1 bg-gray-50 border-r border-gray-200">
-              <div className="p-6">
-                <h2 className="font-semibold text-gray-900 mb-4">设置分类</h2>
-                <div className="space-y-2">
-                  {tabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      className={`w-full text-left flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                        activeTab === tab.id 
-                          ? 'bg-blue-500 text-white shadow-lg' 
-                          : 'hover:bg-gray-100 text-gray-700'
-                      }`}
-                      onClick={() => setActiveTab(tab.id)}
-                    >
-                      <span className="text-lg">{tab.icon}</span>
-                      <span className="font-medium">{tab.label}</span>
-                    </button>
-                  ))}
-                </div>
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>清除缓存</Text>
+                <Text size="sm" c="dimmed">释放 {storageUsage.cache} MB 存储空间</Text>
               </div>
-            </div>
+              <Button variant="outline" onClick={clearCache}>
+                清除
+              </Button>
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>离线模式</Text>
+                <Text size="sm" c="dimmed">下载内容以供离线使用</Text>
+              </div>
+              <Switch
+                checked={settings.offlineMode}
+                onChange={(e) => handleSettingChange('offlineMode', e.currentTarget.checked)}
+              />
+            </Group>
+          </Stack>
+        </Card>
 
-            {/* 主内容区 */}
-            <div className="lg:col-span-3 p-6">
-              {activeTab === 'general' && (
-                <div className="space-y-8">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">常规设置</h2>
-                    <p className="text-gray-600">自定义您的应用体验</p>
-                  </div>
-                  
-                  {/* 语言设置 */}
-                  <div className="bg-gray-50 rounded-xl p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">语言</h3>
-                    <p className="text-gray-600 mb-4">选择您偏好的语言</p>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {languages.map((lang) => (
-                        <button
-                          key={lang.code}
-                          className={`flex items-center space-x-3 p-4 rounded-xl border-2 transition-all duration-200 ${
-                            i18n.language === lang.code 
-                              ? 'border-blue-500 bg-blue-50 text-blue-700' 
-                              : 'border-gray-200 hover:border-gray-300 bg-white'
-                          }`}
-                          onClick={() => handleLanguageChange(lang.code)}
-                        >
-                          <span className="text-2xl">{lang.flag}</span>
-                          <div className="flex-1 text-left">
-                            <div className="font-medium">{lang.name}</div>
-                          </div>
-                          {i18n.language === lang.code && (
-                            <span className="text-blue-500">✓</span>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+        {/* 系统设置 */}
+        <Card padding="xl" radius="xl" shadow="sm">
+          <Stack gap="md">
+            <Group gap="sm">
+              <Smartphone size={20} />
+              <Title order={3}>系统设置</Title>
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>音效</Text>
+                <Text size="sm" c="dimmed">启用应用音效</Text>
+              </div>
+              <Switch
+                checked={settings.soundEffects}
+                onChange={(e) => handleSettingChange('soundEffects', e.currentTarget.checked)}
+              />
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>触觉反馈</Text>
+                <Text size="sm" c="dimmed">启用触觉反馈</Text>
+              </div>
+              <Switch
+                checked={settings.hapticFeedback}
+                onChange={(e) => handleSettingChange('hapticFeedback', e.currentTarget.checked)}
+              />
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>位置服务</Text>
+                <Text size="sm" c="dimmed">允许应用访问位置信息</Text>
+              </div>
+              <Switch
+                checked={settings.locationServices}
+                onChange={(e) => handleSettingChange('locationServices', e.currentTarget.checked)}
+              />
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>自动保存</Text>
+                <Text size="sm" c="dimmed">自动保存草稿和设置</Text>
+              </div>
+              <Switch
+                checked={settings.autoSave}
+                onChange={(e) => handleSettingChange('autoSave', e.currentTarget.checked)}
+              />
+            </Group>
+          </Stack>
+        </Card>
 
-                  {/* 主题设置 */}
-                  <div className="bg-gray-50 rounded-xl p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">主题</h3>
-                    <p className="text-gray-600 mb-4">自定义您的视觉体验</p>
-                    <div className="grid grid-cols-3 gap-4">
-                      <button className="flex flex-col items-center space-y-3 p-4 rounded-xl border-2 border-blue-500 bg-blue-50">
-                        <div className="w-12 h-8 bg-gradient-to-r from-white to-gray-100 rounded border border-gray-200"></div>
-                        <span className="font-medium text-blue-700">浅色</span>
-                      </button>
-                      <button className="flex flex-col items-center space-y-3 p-4 rounded-xl border-2 border-gray-200 hover:border-gray-300 bg-white">
-                        <div className="w-12 h-8 bg-gradient-to-r from-gray-700 to-gray-900 rounded"></div>
-                        <span className="font-medium text-gray-700">深色</span>
-                      </button>
-                      <button className="flex flex-col items-center space-y-3 p-4 rounded-xl border-2 border-gray-200 hover:border-gray-300 bg-white">
-                        <div className="w-12 h-8 bg-gradient-to-r from-white via-gray-400 to-gray-900 rounded"></div>
-                        <span className="font-medium text-gray-700">自动</span>
-                      </button>
-                    </div>
-                  </div>
+        {/* 数据和隐私 */}
+        <Card padding="xl" radius="xl" shadow="sm">
+          <Stack gap="md">
+            <Group gap="sm">
+              <Download size={20} />
+              <Title order={3}>数据和隐私</Title>
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>导出我的数据</Text>
+                <Text size="sm" c="dimmed">下载您的所有数据</Text>
+              </div>
+              <Button variant="outline" onClick={exportData}>
+                导出
+              </Button>
+            </Group>
+            
+            <Group justify="space-between">
+              <div>
+                <Text fw={500}>数据收集</Text>
+                <Text size="sm" c="dimmed">允许收集匿名使用数据以改进服务</Text>
+              </div>
+              <Switch
+                checked={settings.dataCollection}
+                onChange={(e) => handleSettingChange('dataCollection', e.currentTarget.checked)}
+              />
+            </Group>
+            
+            <Divider />
+            
+            <Alert color="red" radius="md">
+              <Group justify="space-between">
+                <div>
+                  <Text fw={500} size="sm">删除账户</Text>
+                  <Text size="xs" c="dimmed">永久删除您的账户和所有数据</Text>
                 </div>
-              )}
+                <Button
+                  color="red"
+                  variant="outline"
+                  size="sm"
+                  leftSection={<Trash2 size={14} />}
+                  onClick={deleteAccount}
+                >
+                  删除账户
+                </Button>
+              </Group>
+            </Alert>
+          </Stack>
+        </Card>
 
-              {activeTab === 'account' && (
-                <div className="space-y-8">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">账户设置</h2>
-                    <p className="text-gray-600">管理您的账户信息</p>
-                  </div>
-                  
-                  {/* 用户信息 */}
-                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">用户信息</h3>
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                        {user?.user_metadata?.avatar_url ? (
-                          <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-2xl font-bold text-white">
-                            {user?.email?.charAt(0).toUpperCase() || 'U'}
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-lg font-medium text-gray-900">{user?.email}</p>
-                        <p className="text-gray-600">
-                          登录方式: {user?.app_metadata?.provider || 'email'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 账户操作 */}
-                  <div className="bg-gray-50 rounded-xl p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">账户操作</h3>
-                    <div className="space-y-3">
-                      <button 
-                        onClick={handleLogout}
-                        className="w-full px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-medium transition-colors"
-                      >
-                        退出登录
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === 'notifications' && (
-                <div className="space-y-8">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">通知设置</h2>
-                    <p className="text-gray-600">管理您接收的通知类型</p>
-                  </div>
-                  
-                  <div className="bg-gray-50 rounded-xl p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">推送通知</h3>
-                    <div className="space-y-4">
-                      {[
-                        { id: 'travel', label: '旅行更新', description: '接收行程和目的地相关的通知', defaultChecked: true },
-                        { id: 'ai', label: 'AI 推荐', description: '基于您的偏好接收个性化推荐', defaultChecked: true },
-                        { id: 'marketing', label: '营销邮件', description: '接收促销和新功能通知', defaultChecked: false }
-                      ].map((item) => (
-                        <label key={item.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 hover:border-gray-300 transition-colors cursor-pointer">
-                          <div className="flex-1">
-                            <div className="font-medium text-gray-900">{item.label}</div>
-                            <div className="text-sm text-gray-600">{item.description}</div>
-                          </div>
-                          <div className="relative">
-                            <input 
-                              type="checkbox" 
-                              defaultChecked={item.defaultChecked}
-                              className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-500 transition-colors">
-                              <div className="w-4 h-4 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-6 translate-x-1 mt-1"></div>
-                            </div>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+        {/* 关于 */}
+        <Card padding="xl" radius="xl" shadow="sm">
+          <Stack gap="sm">
+            <Title order={3}>关于LumaTrip</Title>
+            <Group justify="space-between">
+              <Text size="sm" c="dimmed">版本</Text>
+              <Badge variant="light">v1.0.0</Badge>
+            </Group>
+            <Group justify="space-between">
+              <Text size="sm" c="dimmed">构建日期</Text>
+              <Text size="sm">2024-01-24</Text>
+            </Group>
+            <Group gap="sm" mt="md">
+              <Button variant="outline" size="sm">隐私政策</Button>
+              <Button variant="outline" size="sm">服务条款</Button>
+              <Button variant="outline" size="sm">开源许可</Button>
+            </Group>
+          </Stack>
+        </Card>
+      </Stack>
+    </Container>
   );
 };
 

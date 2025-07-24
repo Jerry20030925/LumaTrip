@@ -1,110 +1,69 @@
-import { createBrowserRouter, type RouteObject } from 'react-router-dom';
+import React, { Suspense } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { Center, Loader } from '@mantine/core';
+
+// 布局组件
 import Layout from '../components/layout/Layout';
-import LandingPage from '../pages/LandingPage';
-import Home from '../pages/Home';
-import Login from '../pages/Login';
-import Register from '../pages/Register';
-import Profile from '../pages/Profile';
-import Messages from '../pages/Messages';
-import Settings from '../pages/Settings';
-import Discover from '../pages/Discover';
-import Notifications from '../pages/Notifications';
-import SearchPage from '../components/search/SearchPage';
-import DebugPage from '../pages/DebugPage';
-import AuthCallback from '../pages/AuthCallback';
-import AuthDebugPage from '../pages/AuthDebugPage';
-import MapExample from '../pages/MapExample';
-import ProtectedRoute from './ProtectedRoute';
-import PublicRoute from './PublicRoute';
-import ErrorBoundary from '../components/ErrorBoundary';
 
-const routes: RouteObject[] = [
-  // Landing Page (no layout)
-  {
-    path: '/',
-    element: <LandingPage />,
-  },
-  // App routes with layout
-  {
-    path: '/app',
-    element: <Layout />,
-    children: [
-      {
-        element: <PublicRoute />,
-        children: [
-          { path: 'login', element: <Login /> },
-          { path: 'register', element: <Register /> },
-        ],
-      },
-      {
-        element: <ProtectedRoute />,
-        children: [
-          { path: 'home', element: <Home /> },
-          { path: 'discover', element: <Discover /> },
-          // { path: '/discover/:postId', element: <PostDetails /> },
-          { path: 'messages', element: <Messages /> },
-          // { path: '/messages/:roomId', element: <ChatRoom /> },
-          { path: 'profile', element: <Profile /> },
-          { path: 'profile/:userId', element: <Profile /> },
-          { path: 'settings', element: <Settings /> },
-          { path: 'search', element: <SearchPage /> },
-          { path: 'notifications', element: <Notifications /> },
-          { path: 'map-example', element: <MapExample /> },
-        ],
-      },
-    ],
-  },
-  // OAuth 回调页面 - 不需要认证
-  {
-    path: '/auth/callback',
-    element: <AuthCallback />,
-  },
-  // 调试页面 - 不需要认证
-  {
-    path: '/debug',
-    element: <DebugPage />,
-  },
-  // 认证状态调试页面 - 不需要认证
-  {
-    path: '/auth-debug',
-    element: <AuthDebugPage />,
-  },
-  // 地图示例页面 - 不需要认证（方便演示）
-  {
-    path: '/map-demo',
-    element: <MapExample />,
-  },
-  // 错误边界
-  {
-    path: '*',
-    element: (
-      <ErrorBoundary>
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          height: '100vh',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-          textAlign: 'center'
-        }}>
-          <h1>404 - 页面未找到</h1>
-          <p>抱歉，您访问的页面不存在。</p>
-          <div style={{ marginTop: '20px' }}>
-            <a href="/" style={{ color: 'yellow', textDecoration: 'underline', marginRight: '20px' }}>
-              返回首页
-            </a>
-            <a href="/app/home" style={{ color: 'yellow', textDecoration: 'underline' }}>
-              前往主页
-            </a>
-          </div>
-        </div>
-      </ErrorBoundary>
-    ),
-  },
-];
+// 页面组件 - 懒加载
+const Home = React.lazy(() => import('../pages/Home'));
+const Discover = React.lazy(() => import('../pages/Discover'));
+const Messages = React.lazy(() => import('../pages/Messages'));
+const Profile = React.lazy(() => import('../pages/Profile'));
+const Settings = React.lazy(() => import('../pages/Settings'));
+const Support = React.lazy(() => import('../pages/Support'));
+const MapExample = React.lazy(() => import('../pages/MapExample'));
+const Login = React.lazy(() => import('../pages/Login'));
+const Register = React.lazy(() => import('../pages/Register'));
+const DebugPage = React.lazy(() => import('../pages/DebugPage'));
+const AuthDebugPage = React.lazy(() => import('../pages/AuthDebugPage'));
+const AuthCallback = React.lazy(() => import('../pages/AuthCallback'));
 
-const router = createBrowserRouter(routes);
+// Loading 组件
+const PageLoader = () => (
+  <Center style={{ height: '100vh' }}>
+    <Loader size="lg" />
+  </Center>
+);
 
-export default router;
+const AppRoutes: React.FC = () => {
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        {/* 根路径重定向到首页 */}
+        <Route path="/" element={<Navigate to="/app/home" replace />} />
+        
+        {/* 应用主要路由 */}
+        <Route path="/app" element={<Layout />}>
+          <Route index element={<Navigate to="/app/home" replace />} />
+          <Route path="home" element={<Home />} />
+          <Route path="discover" element={<Discover />} />
+          <Route path="messages" element={<Messages />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="support" element={<Support />} />
+          <Route path="map-example" element={<MapExample />} />
+        </Route>
+
+        {/* 认证相关路由 */}
+        <Route path="/auth">
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="callback" element={<AuthCallback />} />
+        </Route>
+
+        {/* 调试页面 */}
+        <Route path="/debug" element={<DebugPage />} />
+        <Route path="/auth-debug" element={<AuthDebugPage />} />
+
+        {/* 地图演示页面 */}
+        <Route path="/map-demo" element={<MapExample />} />
+
+        {/* 404 页面 */}
+        <Route path="*" element={<Navigate to="/app/home" replace />} />
+      </Routes>
+    </Suspense>
+  );
+};
+
+export default AppRoutes;
