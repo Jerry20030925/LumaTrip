@@ -44,21 +44,35 @@
     display: none !important;
   }
   
-  /* 确保桌面端导航正常显示 */
+  /* 确保桌面端导航正常显示 - 加强版 */
   .nav-enhanced,
   .desktop-header,
-  header.nav-enhanced {
+  header.nav-enhanced,
+  header {
     display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
   }
   
   /* 确保hidden md:block类正常工作 */
   .hidden.md\\:block {
     display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
   
   /* 确保md:hidden类正常工作 */
   .md\\:hidden {
     display: none !important;
+    visibility: hidden !important;
+  }
+  
+  /* 强制显示桌面端导航容器 */
+  div.hidden.md\\:block {
+    display: block !important;
   }
 }
 

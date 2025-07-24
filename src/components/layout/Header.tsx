@@ -30,7 +30,20 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="nav-enhanced">
+    <header 
+      className="nav-enhanced"
+      style={{
+        display: 'block',
+        visibility: 'visible',
+        opacity: 1,
+        position: 'sticky',
+        top: 0,
+        zIndex: 1000,
+        background: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between h-14">
           {/* Logo and Brand */}

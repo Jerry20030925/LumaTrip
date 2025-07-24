@@ -20,92 +20,23 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCreateMenu, setShowCreateMenu] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(768);
   const location = useLocation();
   const navigate = useNavigate();
 
   // 检测屏幕尺寸
   useEffect(() => {
-    const checkScreenSize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
+    const updateWidth = () => {
+      setWindowWidth(window.innerWidth);
     };
 
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
-  // 强制确保移动端导航可见
-  useEffect(() => {
-    const checkAndForceDisplay = () => {
-      const mobile = window.innerWidth < 768;
-      if (mobile) {
-        // 强制显示移动端导航
-        const mobileNavTop = document.querySelector('.mobile-nav-top');
-        const mobileNavBottom = document.querySelector('.mobile-nav-bottom');
-        
-        if (mobileNavTop) {
-          (mobileNavTop as HTMLElement).style.display = 'flex';
-          (mobileNavTop as HTMLElement).style.position = 'fixed';
-          (mobileNavTop as HTMLElement).style.top = '0';
-          (mobileNavTop as HTMLElement).style.left = '0';
-          (mobileNavTop as HTMLElement).style.right = '0';
-          (mobileNavTop as HTMLElement).style.zIndex = '9999';
-          (mobileNavTop as HTMLElement).style.background = 'rgba(255, 255, 255, 0.98)';
-          (mobileNavTop as HTMLElement).style.backdropFilter = 'blur(16px)';
-        }
-        
-        if (mobileNavBottom) {
-          (mobileNavBottom as HTMLElement).style.display = 'grid';
-          (mobileNavBottom as HTMLElement).style.position = 'fixed';
-          (mobileNavBottom as HTMLElement).style.bottom = '0';
-          (mobileNavBottom as HTMLElement).style.zIndex = '9999';
-        }
-        
-        // 隐藏桌面端导航（仅在移动端）
-        const desktopHeaders = document.querySelectorAll('.nav-enhanced, .desktop-header, header.nav-enhanced');
-        desktopHeaders.forEach(header => {
-          (header as HTMLElement).style.display = 'none';
-        });
-      } else {
-        // 桌面端：隐藏移动端导航，显示桌面端导航
-        const mobileNavTop = document.querySelector('.mobile-nav-top');
-        const mobileNavBottom = document.querySelector('.mobile-nav-bottom');
-        
-        if (mobileNavTop) {
-          (mobileNavTop as HTMLElement).style.display = 'none';
-        }
-        
-        if (mobileNavBottom) {
-          (mobileNavBottom as HTMLElement).style.display = 'none';
-        }
-        
-        // 确保桌面端导航显示
-        const desktopHeaders = document.querySelectorAll('.nav-enhanced, .desktop-header, header.nav-enhanced');
-        desktopHeaders.forEach(header => {
-          (header as HTMLElement).style.display = 'block';
-        });
-      }
-    };
-
-    // 立即执行
-    checkAndForceDisplay();
-    
-    // 监听窗口大小变化
-    window.addEventListener('resize', checkAndForceDisplay);
-    
-    // 延迟执行确保DOM完全加载
-    const timer = setTimeout(checkAndForceDisplay, 100);
-    
-    return () => {
-      window.removeEventListener('resize', checkAndForceDisplay);
-      clearTimeout(timer);
-    };
-  }, []);
-
-  // 如果不是移动端，不渲染任何内容
-  if (!isMobile) {
+  // 如果是桌面端，不渲染任何内容
+  if (windowWidth >= 768) {
     return null;
   }
 
