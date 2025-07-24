@@ -21,6 +21,17 @@
     radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%), 
     radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.08) 0%, transparent 50%), 
     radial-gradient(circle at 40% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+  /* 添加动画背景 */
+  animation: backgroundFloat 20s ease-in-out infinite;
+}
+
+@keyframes backgroundFloat {
+  0%, 100% { 
+    background-position: 0% 50%, 20% 50%, 80% 20%, 40% 80%; 
+  }
+  50% { 
+    background-position: 100% 50%, 80% 30%, 20% 80%, 60% 20%; 
+  }
 }
 
 .home-content {
@@ -35,6 +46,19 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  /* 添加入场动画 */
+  animation: slideInUp 0.8s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero-container {
@@ -59,6 +83,19 @@
   flex-direction: column;
   justify-content: center;
   color: white;
+  /* 添加内容动画 */
+  animation: slideInLeft 1s ease-out 0.2s both;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .title-group {
@@ -71,6 +108,13 @@
 .bot-icon-wrapper {
   position: relative;
   flex-shrink: 0;
+  /* 添加旋转动画 */
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
 }
 
 .bot-icon {
@@ -78,6 +122,13 @@
   height: 80px;
   color: #a855f7;
   filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.5));
+  transition: all 0.3s ease;
+}
+
+.bot-icon:hover {
+  color: #ec4899;
+  filter: drop-shadow(0 0 30px rgba(236, 72, 153, 0.7));
+  transform: scale(1.1);
 }
 
 .bot-icon-wrapper::after {
@@ -106,6 +157,21 @@
   background-clip: text;
   line-height: 1.1;
   margin: 0;
+  /* 添加文字动画 */
+  animation: textGradientShift 3s ease-in-out infinite;
+}
+
+@keyframes textGradientShift {
+  0%, 100% { 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  50% { 
+    background: linear-gradient(135deg, #f093fb 0%, #667eea 50%, #764ba2 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
 }
 
 .welcome-text {
@@ -113,6 +179,13 @@
   color: rgba(255, 255, 255, 0.8);
   margin: 1rem 0 0 0;
   font-weight: 500;
+  /* 添加打字机效果 */
+  animation: typewriter 2s steps(20) 0.5s both;
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
 }
 
 .hero-description {
@@ -121,6 +194,19 @@
   line-height: 1.6;
   margin-bottom: 3rem;
   max-width: 90%;
+  /* 添加淡入动画 */
+  animation: fadeInUp 1s ease-out 0.8s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 功能特性列表 */
@@ -140,14 +226,32 @@
   border-radius: 20px;
   padding: 1.75rem;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  /* 添加逐个入场动画 */
+  opacity: 0;
+  animation: slideInRight 0.6s ease-out forwards;
+}
+
+.feature-item:nth-child(1) { animation-delay: 1s; }
+.feature-item:nth-child(2) { animation-delay: 1.2s; }
+.feature-item:nth-child(3) { animation-delay: 1.4s; }
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .feature-item:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  transform: translateY(-8px) scale(1.02);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .feature-icon {
@@ -156,6 +260,12 @@
   background: rgba(216, 180, 254, 0.1);
   border-radius: 12px;
   flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.feature-item:hover .feature-icon {
+  transform: rotate(10deg) scale(1.1);
+  background: rgba(216, 180, 254, 0.2);
 }
 
 .feature-text h4.feature-title {
@@ -177,6 +287,26 @@
   display: flex;
   gap: 1.5rem;
   align-items: center;
+  /* 添加按钮组动画 */
+  animation: bounceIn 0.8s ease-out 1.6s both;
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .btn-primary {
@@ -191,14 +321,31 @@
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
   text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
 }
 
 .btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.6);
 }
 
 .btn-secondary {
@@ -213,15 +360,35 @@
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-secondary::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transition: all 0.4s ease;
+  transform: translate(-50%, -50%);
+}
+
+.btn-secondary:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.15);
-  transform: translateY(-3px);
+  transform: translateY(-5px) scale(1.05);
   border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 30px rgba(255, 255, 255, 0.2);
   color: white;
   text-decoration: none;
 }
@@ -237,6 +404,16 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   min-height: 500px;
+  /* 添加聊天框动画 */
+  animation: slideInRight 1s ease-out 0.4s both;
+  transition: all 0.3s ease;
+}
+
+.chat-area:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
 .chat-wrapper {
@@ -247,6 +424,13 @@
 /* 快速操作区域 */
 .actions-section {
   padding: 6rem 2rem;
+  /* 添加区域动画 */
+  animation: fadeIn 1s ease-out 2s both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .actions-container {
@@ -257,6 +441,19 @@
 .actions-header {
   text-align: center;
   margin-bottom: 5rem;
+  /* 添加标题动画 */
+  animation: zoomIn 0.8s ease-out 2.2s both;
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .actions-header h2 {
@@ -290,16 +487,51 @@
   border-radius: 24px;
   padding: 3rem;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  transition: all 0.5s ease;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   cursor: pointer;
   position: relative;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
+  /* 添加卡片入场动画 */
+  opacity: 0;
+  animation: slideInUp 0.6s ease-out forwards;
+}
+
+.action-card:nth-child(1) { animation-delay: 2.4s; }
+.action-card:nth-child(2) { animation-delay: 2.6s; }
+.action-card:nth-child(3) { animation-delay: 2.8s; }
+.action-card:nth-child(4) { animation-delay: 3s; }
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.action-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s;
+}
+
+.action-card:hover::before {
+  transform: translateX(100%);
 }
 
 .action-card:hover {
-  transform: translateY(-12px);
+  transform: translateY(-15px) scale(1.05);
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.25);
@@ -317,11 +549,11 @@
   color: white;
   margin-bottom: 2.5rem;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .action-card:hover .action-icon {
-  transform: scale(1.1);
+  transform: scale(1.2) rotate(10deg);
 }
 
 .action-icon[data-color="#8b5cf6"] {
@@ -345,12 +577,22 @@
   font-weight: bold;
   color: white;
   margin-bottom: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.action-card:hover .action-title {
+  transform: translateX(10px);
 }
 
 .action-desc {
   color: rgba(255, 255, 255, 0.8);
   font-size: 1.125rem;
   line-height: 1.6;
+  transition: all 0.3s ease;
+}
+
+.action-card:hover .action-desc {
+  transform: translateX(10px);
 }
 
 .ai-badge {
@@ -366,6 +608,12 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .ai-special {
@@ -374,6 +622,12 @@
   border-radius: 16px;
   padding: 1.25rem;
   border: 1px solid rgba(139, 92, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.action-card:hover .ai-special {
+  background: rgba(139, 92, 246, 0.25);
+  transform: translateY(-5px);
 }
 
 .ai-special p {
@@ -426,13 +680,15 @@
   }
   
   .chat-area {
-    order: -1;
+    order: 1; /* 保持聊天框显示但在内容之后 */
     padding: 1.5rem;
-    margin: 1rem 0;
-    min-height: 300px;
+    margin: 2rem 0;
+    min-height: 400px; /* 确保足够高度显示 */
+    display: flex; /* 确保显示 */
   }
   
   .content-area {
+    order: 0; /* 内容区域在前 */
     text-align: center;
     padding: 0 0.5rem;
   }
