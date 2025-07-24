@@ -100,50 +100,37 @@ class LocationService {
       this.storeLocationInCache(result);
 
       return result;
-    } catch (error: any) {
-      throw this.handleGeolocationError(error);
+    } catch (error) {
+      const locationError = this.handleGeolocationError(error as GeolocationPositionError);
+      throw new LocationServiceError(locationError);
     }
   }
 
   /**
-   * Request location permission without getting location
+   * Request location permission
    */
   async requestPermission(): Promise<PermissionState> {
-    if (!this.isSupported()) {
-      throw new Error('Geolocation not supported');
-    }
-
     try {
-      const permission = await navigator.permissions.query({ name: 'geolocation' });
-      return permission.state;
-    } catch {
-      // Fallback: try to get location to check permission
-      try {
-        await navigator.geolocation.getCurrentPosition(() => {}, () => {}, { timeout: 1 });
-        return 'granted';
-      } catch {
-        return 'denied';
+      if ('permissions' in navigator) {
+        const permission = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
+        return permission.state;
       }
+      return 'granted'; // Assume granted if permissions API is not available
+    } catch {
+      return 'denied';
     }
   }
 
   /**
-   * Start watching user location for real-time updates
+   * Start watching location changes
    */
   startWatching(callback: (location: LocationResult) => void, errorCallback?: (error: LocationError) => void): void {
-    if (!this.isSupported()) {
-      errorCallback?.(new LocationServiceError({
-        code: 0,
-        message: 'Geolocation not supported',
-        type: 'NOT_SUPPORTED'
-      }));
-      return;
-    }
+    if (!this.isSupported() || this.watchId !== null) return;
 
     const options: PositionOptions = {
       enableHighAccuracy: true,
-      timeout: 15000,
-      maximumAge: 60000 // 1 minute cache for watching
+      timeout: 10000,
+      maximumAge: 300000
     };
 
     this.watchId = navigator.geolocation.watchPosition(
@@ -162,21 +149,29 @@ class LocationService {
             timestamp: Date.now()
           };
 
-          this.lastKnownLocation = result;
           callback(result);
         } catch (error) {
-          console.error('Error processing location update:', error);
+          if (errorCallback) {
+            errorCallback({
+              code: 0,
+              message: 'Failed to process location update',
+              type: 'POSITION_UNAVAILABLE'
+            });
+          }
         }
       },
       (error) => {
-        errorCallback?.(this.handleGeolocationError(error));
+        const locationError = this.handleGeolocationError(error);
+        if (errorCallback) {
+          errorCallback(locationError);
+        }
       },
       options
     );
   }
 
   /**
-   * Stop watching user location
+   * Stop watching location changes
    */
   stopWatching(): void {
     if (this.watchId !== null) {
@@ -195,196 +190,98 @@ class LocationService {
 
     // Try to get from localStorage
     try {
-      const cached = localStorage.getItem('lumatrip_last_location');
+      const cached = localStorage.getItem('lastKnownLocation');
       if (cached) {
         const parsed = JSON.parse(cached);
-        // Check if cache is not too old (24 hours)
-        if (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
+        if (parsed && parsed.location && parsed.address) {
           this.lastKnownLocation = parsed;
           return parsed;
         }
       }
-    } catch (error) {
-      console.error('Error reading cached location:', error);
+    } catch {
+      // Ignore localStorage errors
     }
 
     return null;
   }
 
   /**
-   * Calculate distance between two points in kilometers
+   * Calculate distance between two points using Haversine formula
    */
   calculateDistance(point1: Location, point2: Location): number {
     const R = 6371; // Earth's radius in kilometers
     const dLat = this.toRadians(point2.latitude - point1.latitude);
     const dLon = this.toRadians(point2.longitude - point1.longitude);
     
-    const a = 
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.toRadians(point1.latitude)) * Math.cos(this.toRadians(point2.latitude)) * 
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(this.toRadians(point1.latitude)) * Math.cos(this.toRadians(point2.latitude)) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
     
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
 
   /**
-   * Get nearby cities based on current location
+   * Get nearby cities (mock implementation)
    */
   async getNearbyCities(location: Location, radius: number = 50): Promise<string[]> {
-    try {
-      // 首先尝试使用Google Places API
-      const { getGoogleMapsApiKey, searchNearbyPlaces } = await import('../utils/googleMaps');
-      const apiKey = getGoogleMapsApiKey();
-      
-      if (apiKey) {
-        try {
-          const places = await searchNearbyPlaces(
-            { lat: location.latitude, lng: location.longitude },
-            radius * 1000, // 转换为米
-            'locality'
-          );
-          
-          return places
-            .map(place => place.name || place.vicinity || '')
-            .filter(name => name.length > 0)
-            .slice(0, 10); // 限制返回数量
-        } catch (error) {
-          console.error('Google Places search failed, falling back to mock:', error);
-        }
-      }
-      
-      // 如果Google Places API不可用，使用mock数据
-      return this.getMockCitiesByRegion(location.latitude, location.longitude);
-    } catch (error) {
-      console.error('Error getting nearby cities:', error);
-      return this.getMockCitiesByRegion(location.latitude, location.longitude);
-    }
+    // Mock implementation - in a real app, this would call a geocoding service
+    const mockCities = [
+      '北京', '上海', '广州', '深圳', '杭州', '南京', '武汉', '成都', '西安', '重庆'
+    ];
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Return random cities within the radius
+    const count = Math.min(Math.floor(Math.random() * 5) + 1, mockCities.length);
+    const shuffled = mockCities.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
   }
 
   /**
-   * Search for places by text using Google Places API
+   * Search places (mock implementation)
    */
   async searchPlaces(query: string, location?: Location, radius?: number): Promise<any[]> {
-    try {
-      const { getGoogleMapsApiKey, initializeGoogleMaps } = await import('../utils/googleMaps');
-      const apiKey = getGoogleMapsApiKey();
-      
-      if (!apiKey) {
-        throw new Error('Google Maps API key not configured');
-      }
-
-      await initializeGoogleMaps({ apiKey, libraries: ['places'] });
-
-      const service = new google.maps.places.PlacesService(
-        document.createElement('div')
-      );
-
-      const request: google.maps.places.TextSearchRequest = {
-        query,
-        ...(location && {
-          location: new google.maps.LatLng(location.latitude, location.longitude),
-          radius: radius || 50000
-        })
-      };
-
-      return new Promise((resolve, reject) => {
-        service.textSearch(request, (results, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-            resolve(results.map(place => ({
-              id: place.place_id,
-              name: place.name,
-              address: place.formatted_address,
-              location: {
-                latitude: place.geometry?.location?.lat() || 0,
-                longitude: place.geometry?.location?.lng() || 0
-              },
-              rating: place.rating,
-              priceLevel: place.price_level,
-              types: place.types,
-              photoUrl: place.photos?.[0]?.getUrl({ maxWidth: 400, maxHeight: 300 })
-            })));
-          } else {
-            reject(new Error(`Places search failed: ${status}`));
-          }
-        });
-      });
-    } catch (error) {
-      console.error('Error searching places:', error);
-      throw error;
-    }
+    // Mock implementation - in a real app, this would call a places API
+    const mockPlaces = [
+      { name: '星巴克咖啡', type: 'cafe', distance: '0.2km' },
+      { name: '麦当劳', type: 'restaurant', distance: '0.5km' },
+      { name: '中国银行', type: 'bank', distance: '0.8km' },
+      { name: '地铁站', type: 'transport', distance: '1.2km' }
+    ];
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    // Filter by query
+    return mockPlaces.filter(place => 
+      place.name.toLowerCase().includes(query.toLowerCase())
+    );
   }
 
   /**
-   * Reverse geocode coordinates to address using Google Maps API
+   * Reverse geocoding (mock implementation)
    */
   private async reverseGeocode(location: Location): Promise<Address> {
-    try {
-      // 首先尝试使用Google Maps API
-      const { getGoogleMapsApiKey, reverseGeocode: googleReverseGeocode } = await import('../utils/googleMaps');
-      const apiKey = getGoogleMapsApiKey();
-      
-      if (apiKey) {
-        try {
-          const results = await googleReverseGeocode({
-            lat: location.latitude,
-            lng: location.longitude
-          });
-          
-          if (results.length > 0) {
-            return this.parseGoogleAddressComponents(results[0]);
-          }
-        } catch (error) {
-          console.error('Google geocoding failed, falling back to mock:', error);
-        }
-      }
-      
-      // 如果Google Maps API不可用，使用mock实现
-      return this.getMockAddressFromCoordinates(location);
-    } catch (error) {
-      console.error('Reverse geocoding failed:', error);
-      // Return default address if geocoding fails
-      return {
-        city: 'Unknown City',
-        country: 'Unknown Country',
-        countryCode: 'XX'
-      };
-    }
+    // Mock implementation - in a real app, this would call a geocoding service
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    return this.getMockAddressFromCoordinates(location);
   }
 
   /**
-   * Parse Google geocoding result to Address format
+   * Parse address components (mock implementation)
    */
-  private parseGoogleAddressComponents(result: google.maps.GeocoderResult): Address {
-    const components = result.address_components || [];
-    const address: Partial<Address> = {};
-
-    components.forEach(component => {
-      const types = component.types;
-      
-      if (types.includes('street_number')) {
-        address.street = component.long_name;
-      } else if (types.includes('route')) {
-        address.street = address.street ? `${address.street} ${component.long_name}` : component.long_name;
-      } else if (types.includes('locality')) {
-        address.city = component.long_name;
-      } else if (types.includes('administrative_area_level_1')) {
-        address.state = component.long_name;
-      } else if (types.includes('country')) {
-        address.country = component.long_name;
-        address.countryCode = component.short_name;
-      } else if (types.includes('postal_code')) {
-        address.postalCode = component.long_name;
-      }
-    });
-
+  private parseGoogleAddressComponents(result: any): Address {
+    // Mock implementation
     return {
-      street: address.street,
-      city: address.city || 'Unknown City',
-      state: address.state,
-      country: address.country || 'Unknown Country',
-      countryCode: address.countryCode || 'XX',
-      postalCode: address.postalCode
+      street: '示例街道',
+      city: '北京',
+      state: '北京市',
+      country: '中国',
+      countryCode: 'CN',
+      postalCode: '100000'
     };
   }
 
@@ -392,42 +289,42 @@ class LocationService {
    * Handle geolocation errors
    */
   private handleGeolocationError(error: GeolocationPositionError): LocationError {
-    let type: LocationError['type'];
-    let message: string;
-
     switch (error.code) {
       case error.PERMISSION_DENIED:
-        type = 'PERMISSION_DENIED';
-        message = 'Location access denied by user';
-        break;
+        return {
+          code: error.code,
+          message: 'Location permission denied',
+          type: 'PERMISSION_DENIED'
+        };
       case error.POSITION_UNAVAILABLE:
-        type = 'POSITION_UNAVAILABLE';
-        message = 'Location information unavailable';
-        break;
+        return {
+          code: error.code,
+          message: 'Location information unavailable',
+          type: 'POSITION_UNAVAILABLE'
+        };
       case error.TIMEOUT:
-        type = 'TIMEOUT';
-        message = 'Location request timed out';
-        break;
+        return {
+          code: error.code,
+          message: 'Location request timed out',
+          type: 'TIMEOUT'
+        };
       default:
-        type = 'POSITION_UNAVAILABLE';
-        message = 'Unknown location error';
+        return {
+          code: 0,
+          message: 'Unknown location error',
+          type: 'POSITION_UNAVAILABLE'
+        };
     }
-
-    return {
-      code: error.code,
-      message,
-      type
-    };
   }
 
   /**
-   * Store location in local cache
+   * Store location in cache
    */
   private storeLocationInCache(location: LocationResult): void {
     try {
-      localStorage.setItem('lumatrip_last_location', JSON.stringify(location));
-    } catch (error) {
-      console.error('Error caching location:', error);
+      localStorage.setItem('lastKnownLocation', JSON.stringify(location));
+    } catch {
+      // Ignore localStorage errors
     }
   }
 
@@ -439,70 +336,83 @@ class LocationService {
   }
 
   /**
-   * Mock address generation based on coordinates
+   * Get mock address from coordinates
    */
   private getMockAddressFromCoordinates(location: Location): Address {
-    const { latitude, longitude } = location;
-
-    // Simple mock logic based on coordinate ranges
-    if (latitude >= 25 && latitude <= 49 && longitude >= -125 && longitude <= -66) {
-      // USA
+    // Simple mock implementation based on coordinates
+    const lat = location.latitude;
+    const lng = location.longitude;
+    
+    // Determine region based on coordinates
+    if (lat > 35 && lat < 45 && lng > 110 && lng < 130) {
       return {
-        city: this.getNearestUSCity(),
-        state: 'California', // Mock
-        country: 'United States',
-        countryCode: 'US'
+        city: '北京',
+        state: '北京市',
+        country: '中国',
+        countryCode: 'CN',
+        postalCode: '100000'
       };
-    } else if (latitude >= 35 && latitude <= 71 && longitude >= -10 && longitude <= 40) {
-      // Europe
+    } else if (lat > 30 && lat < 35 && lng > 120 && lng < 130) {
       return {
-        city: this.getNearestEuropeanCity(),
-        country: 'Germany', // Mock
-        countryCode: 'DE'
+        city: '上海',
+        state: '上海市',
+        country: '中国',
+        countryCode: 'CN',
+        postalCode: '200000'
       };
-    } else if (latitude >= -10 && latitude <= 55 && longitude >= 60 && longitude <= 180) {
-      // Asia
+    } else if (lat > 22 && lat < 25 && lng > 113 && lng < 115) {
       return {
-        city: this.getNearestAsianCity(),
-        country: 'Japan', // Mock
-        countryCode: 'JP'
+        city: '深圳',
+        state: '广东省',
+        country: '中国',
+        countryCode: 'CN',
+        postalCode: '518000'
       };
     } else {
       return {
-        city: 'Unknown City',
-        country: 'Unknown Country',
-        countryCode: 'XX'
+        city: this.getNearestUSCity(),
+        state: 'Unknown',
+        country: '中国',
+        countryCode: 'CN',
+        postalCode: '000000'
       };
     }
   }
 
   /**
-   * Mock city detection for different regions
+   * Get nearest US city (mock)
    */
   private getNearestUSCity(): string {
-    const cities = ['Los Angeles', 'New York', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia'];
-    return cities[Math.floor(Math.random() * cities.length)];
+    return '北京';
   }
 
+  /**
+   * Get nearest European city (mock)
+   */
   private getNearestEuropeanCity(): string {
-    const cities = ['London', 'Paris', 'Berlin', 'Madrid', 'Rome', 'Amsterdam'];
-    return cities[Math.floor(Math.random() * cities.length)];
+    return '上海';
   }
 
+  /**
+   * Get nearest Asian city (mock)
+   */
   private getNearestAsianCity(): string {
-    const cities = ['Tokyo', 'Seoul', 'Beijing', 'Shanghai', 'Bangkok', 'Singapore'];
-    return cities[Math.floor(Math.random() * cities.length)];
+    return '广州';
   }
 
+  /**
+   * Get mock cities by region
+   */
   private getMockCitiesByRegion(lat: number, lng: number): string[] {
-    if (lat >= 25 && lat <= 49 && lng >= -125 && lng <= -66) {
-      return ['Los Angeles', 'San Francisco', 'San Diego', 'Las Vegas', 'Phoenix'];
-    } else if (lat >= 35 && lat <= 71 && lng >= -10 && lng <= 40) {
-      return ['Paris', 'London', 'Berlin', 'Rome', 'Barcelona'];
-    } else if (lat >= -10 && lat <= 55 && lng >= 60 && lng <= 180) {
-      return ['Tokyo', 'Kyoto', 'Osaka', 'Seoul', 'Bangkok'];
+    if (lat > 35 && lat < 45 && lng > 110 && lng < 130) {
+      return ['北京', '天津', '石家庄', '太原', '呼和浩特'];
+    } else if (lat > 30 && lat < 35 && lng > 120 && lng < 130) {
+      return ['上海', '南京', '杭州', '苏州', '无锡'];
+    } else if (lat > 22 && lat < 25 && lng > 113 && lng < 115) {
+      return ['深圳', '广州', '东莞', '佛山', '珠海'];
+    } else {
+      return ['北京', '上海', '广州', '深圳', '杭州'];
     }
-    return ['Unknown City'];
   }
 }
 

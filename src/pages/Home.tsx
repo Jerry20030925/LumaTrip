@@ -59,75 +59,75 @@ const Home: React.FC = () => {
 
   return (
     <div className="home-page">
-      {/* 背景效果 */}
+        {/* 背景效果 */}
       <div className="home-background"></div>
 
       <div className="home-content">
-        {/* 英雄区域 */}
+          {/* 英雄区域 */}
         <section className="hero-section">
-          <div className="hero-container">
+            <div className="hero-container">
             <div className="hero-layout">
-              
-              {/* 左侧内容 */}
+                
+                {/* 左侧内容 */}
               <div className="content-area">
                 <div className="title-group">
                   <div className="bot-icon-wrapper">
                     <Bot className="bot-icon" />
-                  </div>
+                    </div>
                   <div className="title-text">
-                    <h1 className="main-title">AI 旅行助手</h1>
-                    <p className="welcome-text">
-                      欢迎回来，{user?.email?.split('@')[0] || '旅行者'}！
-                    </p>
+                      <h1 className="main-title">AI 旅行助手</h1>
+                      <p className="welcome-text">
+                        欢迎回来，{user?.email?.split('@')[0] || '旅行者'}！
+                      </p>
+                    </div>
                   </div>
-                </div>
-                
+                  
                 <p className="hero-description">
-                  🤖 让AI为您规划完美旅程，探索无限可能的世界
-                </p>
+                    🤖 让AI为您规划完美旅程，探索无限可能的世界
+                  </p>
 
                 <div className="features-list">
-                  {aiFeatures.map((feature, index) => (
+                    {aiFeatures.map((feature, index) => (
                     <div key={index} className="feature-item">
-                      <div className="feature-icon">
-                        {feature.icon}
-                      </div>
+                          <div className="feature-icon">
+                            {feature.icon}
+                          </div>
                       <div className="feature-text">
-                        <h4 className="feature-title">{feature.title}</h4>
-                        <p className="feature-desc">{feature.description}</p>
+                            <h4 className="feature-title">{feature.title}</h4>
+                            <p className="feature-desc">{feature.description}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                  
+                  <div className="action-buttons">
+                    <button className="btn-primary">
+                      <Bot size={24} />
+                      <span>🚀 开始AI对话</span>
+                    </button>
+                    <Link to="/app/map-example" className="btn-secondary">
+                      <MapPin size={24} />
+                      <span>🗺️ 探索地图</span>
+                    </Link>
+                  </div>
                 </div>
-                
-                <div className="action-buttons">
-                  <button className="btn-primary">
-                    <Bot size={24} />
-                    <span>🚀 开始AI对话</span>
-                  </button>
-                  <Link to="/app/map-example" className="btn-secondary">
-                    <MapPin size={24} />
-                    <span>🗺️ 探索地图</span>
-                  </Link>
-                </div>
-              </div>
 
-              {/* 右侧AI对话框 */}
+                {/* 右侧AI对话框 */}
               <div className="chat-area">
                 <div className="chat-wrapper">
-                  <AIChatBox 
-                    compact 
-                    onMessageSent={(message) => {
-                      console.log('用户发送消息:', message);
-                    }}
-                  />
+                    <AIChatBox 
+                      compact 
+                      onMessageSent={(message) => {
+                        console.log('用户发送消息:', message);
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
         </section>
 
-        {/* 快速操作区域 */}
+          {/* 快速操作区域 */}
         <section className="actions-section">
           <div className="actions-container">
             <div className="actions-header">

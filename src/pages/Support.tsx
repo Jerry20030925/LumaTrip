@@ -13,7 +13,6 @@ import {
   Card,
   Badge,
   Grid,
-  Center,
   Alert,
   ActionIcon
 } from '@mantine/core';
@@ -21,7 +20,6 @@ import {
   MessageCircle,
   Send,
   Check,
-  HelpCircle,
   Bug,
   Lightbulb,
   ThumbsUp,
@@ -29,28 +27,16 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { feedbackService, type Feedback } from '../services/feedback.service';
 import { useAuth } from '../hooks/useAuth';
-
-interface Feedback {
-  id: string;
-  type: 'bug' | 'feature' | 'general' | 'compliment';
-  title: string;
-  content: string;
-  userEmail: string;
-  userName: string;
-  createdAt: Date;
-  status: 'pending' | 'reviewed' | 'resolved';
-  rating?: number;
-}
 
 const Support: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [myFeedbacks, setMyFeedbacks] = useState<Feedback[]>([]);
-  const [showMyFeedbacks, setShowMyFeedbacks] = useState(false);
+  const [loadingFeedbacks, setLoadingFeedbacks] = useState(true);
 
   const [formData, setFormData] = useState({
     type: 'general',
@@ -59,80 +45,101 @@ const Support: React.FC = () => {
     rating: 5
   });
 
-  // 模拟获取反馈数据
+  // 加载用户反馈
   useEffect(() => {
-    const mockFeedbacks: Feedback[] = [
-      {
-        id: '1',
-        type: 'feature',
-        title: '希望添加夜间模式',
-        content: '能否添加一个夜间模式？长时间使用眼睛会疲劳。',
-        userEmail: 'user1@example.com',
-        userName: '旅行爱好者',
-        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        status: 'reviewed'
-      },
-      {
-        id: '2',
-        type: 'bug',
-        title: '地图加载缓慢',
-        content: '地图页面打开后加载很慢，有时需要等待30秒以上。',
-        userEmail: 'user2@example.com',
-        userName: '探索者',
-        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000),
-        status: 'resolved'
-      },
-      {
-        id: '3',
-        type: 'compliment',
-        title: '界面设计很棒',
-        content: '非常喜欢这个应用的界面设计，简洁美观，用户体验很好！',
-        userEmail: 'user3@example.com',
-        userName: '设计师小李',
-        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        status: 'reviewed',
-        rating: 5
-      }
-    ];
+    loadUserFeedbacks();
+  }, []);
 
-    setFeedbacks(mockFeedbacks);
-    
-    // 获取当前用户的反馈
-    const userFeedbacks = mockFeedbacks.filter(f => f.userEmail === user?.email);
-    setMyFeedbacks(userFeedbacks);
-  }, [user]);
+  const loadUserFeedbacks = async () => {
+    setLoadingFeedbacks(true);
+    try {
+      let userEmail = user?.email;
+      
+      if (!userEmail) {
+        console.log('用户未登录，使用测试邮箱');
+        userEmail = 'test@example.com';
+      }
+      
+      const feedbacks = await feedbackService.getUserFeedbacks(userEmail);
+      console.log('加载到的反馈:', feedbacks);
+      setMyFeedbacks(feedbacks);
+    } catch (error) {
+      console.error('加载用户反馈失败:', error);
+    } finally {
+      setLoadingFeedbacks(false);
+    }
+  };
 
   const handleSubmit = async () => {
-    if (!formData.content.trim()) return;
+    console.log('提交反馈 - 用户信息:', user);
+    console.log('提交反馈 - 表单数据:', formData);
+    
+    if (!formData.content.trim()) {
+      console.log('内容为空，无法提交');
+      return;
+    }
+    
+    if (!user?.email) {
+      console.log('用户未登录或邮箱为空');
+      // 使用模拟用户数据
+      const mockUser = {
+        email: 'test@example.com',
+        user_metadata: { full_name: '测试用户' }
+      };
+      
+      setLoading(true);
+      
+      try {
+        const newFeedback = await feedbackService.submitFeedback({
+          type: formData.type as any,
+          title: formData.title || '用户反馈',
+          content: formData.content,
+          userEmail: mockUser.email,
+          userName: mockUser.user_metadata.full_name,
+          status: 'pending',
+          rating: formData.type === 'compliment' ? formData.rating : undefined
+        });
+
+        if (newFeedback) {
+          setMyFeedbacks(prev => [newFeedback, ...prev]);
+          setSubmitted(true);
+          setFormData({ type: 'general', title: '', content: '', rating: 5 });
+          
+          setTimeout(() => setSubmitted(false), 3000);
+        }
+      } catch (error) {
+        console.error('提交反馈失败:', error);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
 
     setLoading(true);
     
-    // 模拟提交反馈
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newFeedback: Feedback = {
-      id: Date.now().toString(),
-      type: formData.type as any,
-      title: formData.title || '用户反馈',
-      content: formData.content,
-      userEmail: user?.email || 'anonymous@example.com',
-      userName: user?.user_metadata?.full_name || user?.email?.split('@')[0] || '匿名用户',
-      createdAt: new Date(),
-      status: 'pending',
-      rating: formData.type === 'compliment' ? formData.rating : undefined
-    };
+    try {
+      const newFeedback = await feedbackService.submitFeedback({
+        type: formData.type as any,
+        title: formData.title || '用户反馈',
+        content: formData.content,
+        userEmail: user.email,
+        userName: user.user_metadata?.full_name || user.email.split('@')[0],
+        status: 'pending',
+        rating: formData.type === 'compliment' ? formData.rating : undefined
+      });
 
-    setFeedbacks(prev => [newFeedback, ...prev]);
-    if (user?.email === newFeedback.userEmail) {
-      setMyFeedbacks(prev => [newFeedback, ...prev]);
+      if (newFeedback) {
+        setMyFeedbacks(prev => [newFeedback, ...prev]);
+        setSubmitted(true);
+        setFormData({ type: 'general', title: '', content: '', rating: 5 });
+        
+        setTimeout(() => setSubmitted(false), 3000);
+      }
+    } catch (error) {
+      console.error('提交反馈失败:', error);
+    } finally {
+      setLoading(false);
     }
-
-    setSubmitted(true);
-    setFormData({ type: 'general', title: '', content: '', rating: 5 });
-    setLoading(false);
-
-    // 3秒后重置提交状态
-    setTimeout(() => setSubmitted(false), 3000);
   };
 
   const getTypeIcon = (type: string) => {
@@ -197,7 +204,7 @@ const Support: React.FC = () => {
           background: 'linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(56, 178, 172, 0.1) 100%)',
           border: '1px solid rgba(255, 255, 255, 0.2)'
         }}>
-          <Group justify="space-between" align="flex-start">
+          <Group justify="space-between">
             <Stack gap="sm">
               <Group gap="sm">
                 <ActionIcon variant="subtle" onClick={() => navigate(-1)}>
@@ -209,15 +216,6 @@ const Support: React.FC = () => {
                 您的反馈对我们非常重要，帮助我们持续改进LumaTrip的服务
               </Text>
             </Stack>
-            <Group>
-              <Button
-                variant={showMyFeedbacks ? "filled" : "outline"}
-                onClick={() => setShowMyFeedbacks(!showMyFeedbacks)}
-                leftSection={<MessageCircle size={16} />}
-              >
-                {showMyFeedbacks ? '所有反馈' : '我的反馈'}
-              </Button>
-            </Group>
           </Group>
         </Paper>
 
@@ -293,81 +291,92 @@ const Support: React.FC = () => {
             </Paper>
           </Grid.Col>
 
-          {/* 右侧：反馈列表 */}
+          {/* 右侧：我的反馈列表 */}
           <Grid.Col span={{ base: 12, md: 6 }}>
             <Paper p="xl" radius="xl" shadow="sm">
               <Stack gap="md">
                 <Group justify="space-between">
-                  <Title order={3}>
-                    {showMyFeedbacks ? '我的反馈' : '最近反馈'}
-                  </Title>
+                  <Title order={3}>我的反馈</Title>
                   <Badge variant="light" color="blue">
-                    {showMyFeedbacks ? myFeedbacks.length : feedbacks.length} 条
+                    {myFeedbacks.length} 条
                   </Badge>
                 </Group>
 
                 <Stack gap="sm" mah={600} style={{ overflowY: 'auto' }}>
-                  {(showMyFeedbacks ? myFeedbacks : feedbacks).map((feedback) => (
-                    <Card key={feedback.id} padding="md" radius="lg" withBorder>
-                      <Stack gap="xs">
-                        {/* 头部信息 */}
-                        <Group justify="space-between" align="flex-start">
-                          <Group gap="xs">
-                            <Badge
-                              leftSection={getTypeIcon(feedback.type)}
-                              color={getTypeColor(feedback.type)}
-                              variant="light"
-                              size="sm"
-                            >
-                              {getTypeLabel(feedback.type)}
-                            </Badge>
-                            <Badge
-                              color={getStatusColor(feedback.status)}
-                              variant="dot"
-                              size="sm"
-                            >
-                              {getStatusLabel(feedback.status)}
-                            </Badge>
-                          </Group>
-                          <Text size="xs" c="dimmed">
-                            {formatTimeAgo(feedback.createdAt)}
-                          </Text>
-                        </Group>
-
-                        {/* 标题和内容 */}
-                        <Text fw={500} size="sm">{feedback.title}</Text>
-                        <Text size="xs" c="dimmed" lineClamp={3}>
-                          {feedback.content}
-                        </Text>
-
-                        {/* 评分 */}
-                        {feedback.rating && (
-                          <Group gap="xs">
-                            {[...Array(feedback.rating)].map((_, i) => (
-                              <Star key={i} size={12} fill="currentColor" style={{ color: '#ffd43b' }} />
-                            ))}
-                          </Group>
-                        )}
-
-                        {/* 用户信息 */}
-                        <Group gap="xs" mt="xs">
-                          <Text size="xs" c="dimmed">
-                            来自: {feedback.userName}
-                          </Text>
-                        </Group>
+                  {loadingFeedbacks ? (
+                    <Paper p="xl" radius="lg" style={{ textAlign: 'center' }}>
+                      <Stack gap="md">
+                        <Text size="lg" c="dimmed">加载中...</Text>
                       </Stack>
-                    </Card>
-                  ))}
-
-                  {(showMyFeedbacks ? myFeedbacks : feedbacks).length === 0 && (
-                    <Center py="xl">
-                      <Stack align="center" gap="md">
-                        <HelpCircle size={48} style={{ color: '#9ca3af' }} />
+                    </Paper>
+                  ) : myFeedbacks.length === 0 ? (
+                    <Paper p="xl" radius="lg" style={{ textAlign: 'center' }}>
+                      <Stack gap="md">
+                        <MessageCircle size={48} style={{ color: '#9ca3af', margin: '0 auto' }} />
                         <Text size="lg" c="dimmed">
-                          {showMyFeedbacks ? '您还没有提交任何反馈' : '暂无反馈记录'}
+                          您还没有提交任何反馈
+                        </Text>
+                        <Text size="sm" c="dimmed">
+                          有任何问题或建议，请在左侧表单中提交反馈
                         </Text>
                       </Stack>
-                    </Center>
+                    </Paper>
+                  ) : (
+                    myFeedbacks.map((feedback) => (
+                      <Card key={feedback.id} padding="md" radius="lg" withBorder>
+                        <Stack gap="xs">
+                          {/* 头部信息 */}
+                          <Group justify="space-between">
+                            <Group gap="xs">
+                              <Badge
+                                leftSection={getTypeIcon(feedback.type)}
+                                color={getTypeColor(feedback.type)}
+                                variant="light"
+                                size="sm"
+                              >
+                                {getTypeLabel(feedback.type)}
+                              </Badge>
+                              <Badge
+                                color={getStatusColor(feedback.status)}
+                                variant="dot"
+                                size="sm"
+                              >
+                                {getStatusLabel(feedback.status)}
+                              </Badge>
+                            </Group>
+                            <Text size="xs" c="dimmed">
+                              {formatTimeAgo(feedback.createdAt)}
+                            </Text>
+                          </Group>
+
+                          {/* 标题和内容 */}
+                          <Text fw={500} size="sm">{feedback.title}</Text>
+                          <Text size="xs" c="dimmed" lineClamp={3}>
+                            {feedback.content}
+                          </Text>
+
+                          {/* 评分 */}
+                          {feedback.rating && (
+                            <Group gap="xs">
+                              {[...Array(feedback.rating)].map((_, i) => (
+                                <Star key={i} size={12} fill="currentColor" style={{ color: '#ffd43b' }} />
+                              ))}
+                            </Group>
+                          )}
+
+                          {/* 开发者回复 */}
+                          {feedback.response && (
+                            <Paper p="md" radius="md" style={{ background: 'rgba(59, 130, 246, 0.05)' }}>
+                              <Group gap="xs" mb="xs">
+                                <MessageCircle size={12} />
+                                <Text size="xs" fw={500} c="blue">开发者回复:</Text>
+                              </Group>
+                              <Text size="xs">{feedback.response}</Text>
+                            </Paper>
+                          )}
+                        </Stack>
+                      </Card>
+                    ))
                   )}
                 </Stack>
               </Stack>

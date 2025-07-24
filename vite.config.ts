@@ -1,65 +1,43 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
-import { visualizer } from 'rollup-plugin-visualizer';
+import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-    visualizer({
-      filename: 'dist/stats.html',
-      open: false,
-    }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['luma-logo.svg', 'apple-touch-icon.png', 'masked-icon.svg'],
-      workbox: {
-        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}']
-      },
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
         name: 'LumaTrip',
         short_name: 'LumaTrip',
-        description: 'A modern social travel app.',
-        theme_color: '#3498DB',
-        background_color: '#ffffff',
+        description: 'A modern travel companion app',
+        theme_color: '#ffffff',
         icons: [
           {
-            src: 'luma-logo.svg',
+            src: 'pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/svg+xml',
+            type: 'image/png'
           },
           {
-            src: 'luma-logo.svg',
+            src: 'pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/svg+xml',
-          },
-        ],
-      },
-    }),
-  ],
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['@mantine/core', '@mantine/hooks', '@mantine/notifications'],
-          icons: ['lucide-react', '@tabler/icons-react'],
-          router: ['react-router-dom'],
-          maps: ['@googlemaps/js-api-loader'],
-          utils: ['date-fns', 'zustand']
-        }
+            type: 'image/png'
+          }
+        ]
       }
-    },
-    chunkSizeWarningLimit: 1000
-  },
+    })
+  ],
   server: {
-    port: 3000,
+    port: 5173,
     host: true
   },
-  preview: {
-    port: 4173,
-    host: true
+  build: {
+    outDir: 'dist',
+    sourcemap: true
+  },
+  define: {
+    global: 'globalThis'
   }
 });

@@ -12,7 +12,9 @@ const Messages = React.lazy(() => import('../pages/Messages'));
 const Profile = React.lazy(() => import('../pages/Profile'));
 const Settings = React.lazy(() => import('../pages/Settings'));
 const Support = React.lazy(() => import('../pages/Support'));
+const AdminFeedback = React.lazy(() => import('../pages/AdminFeedback'));
 const MapExample = React.lazy(() => import('../pages/MapExample'));
+const AppleMapTest = React.lazy(() => import('../pages/AppleMapTest'));
 const Login = React.lazy(() => import('../pages/Login'));
 const Register = React.lazy(() => import('../pages/Register'));
 const DebugPage = React.lazy(() => import('../pages/DebugPage'));
@@ -42,7 +44,9 @@ const AppRoutes: React.FC = () => {
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
           <Route path="support" element={<Support />} />
+          <Route path="admin/feedback" element={<AdminFeedback />} />
           <Route path="map-example" element={<MapExample />} />
+          <Route path="apple-map-test" element={<AppleMapTest />} />
         </Route>
 
         {/* 认证相关路由 */}

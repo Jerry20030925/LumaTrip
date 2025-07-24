@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  IconSearch, 
-  IconBell, 
+import {
+  IconBell,
+  IconSearch,
   IconChevronDown,
   IconHome,
   IconCompass,
@@ -13,7 +13,8 @@ import {
   IconHelpCircle,
   IconLogout
 } from '@tabler/icons-react';
-import { Menu, ActionIcon, Avatar, Indicator, Text } from '@mantine/core';
+import { Menu, ActionIcon, Avatar, Indicator, Text, Group, Button } from '@mantine/core';
+import { MapPin, Globe, MessageCircle } from 'lucide-react';
 
 interface DesktopHeaderProps {
   user?: {
@@ -44,7 +45,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({ user }) => {
   };
 
   return (
-    <header 
+    <header
       style={{
         display: 'block',
         position: 'sticky',
@@ -70,7 +71,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({ user }) => {
         justifyContent: 'space-between',
         height: '48px'
       }}>
-        
+
         {/* 左侧 Logo */}
         <Link to="/app/home" style={{ textDecoration: 'none' }}>
           <div style={{
@@ -88,10 +89,10 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({ user }) => {
               justifyContent: 'center',
               boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
             }}>
-              <span style={{ 
-                color: 'white', 
-                fontWeight: 'bold', 
-                fontSize: '16px' 
+              <span style={{
+                color: 'white',
+                fontWeight: 'bold',
+                fontSize: '16px'
               }}>L</span>
             </div>
             <span style={{
@@ -112,7 +113,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({ user }) => {
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.to;
-            
+
             return (
               <Link
                 key={item.to}
@@ -125,8 +126,8 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({ user }) => {
                   borderRadius: '8px',
                   textDecoration: 'none',
                   color: isActive ? '#667eea' : '#6b7280',
-                  background: isActive 
-                    ? 'rgba(102, 126, 234, 0.1)' 
+                  background: isActive
+                    ? 'rgba(102, 126, 234, 0.1)'
                     : 'transparent',
                   transition: 'all 0.2s ease',
                   fontSize: '14px',
@@ -168,7 +169,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({ user }) => {
 
         {/* 右侧功能区 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          
+
           {/* 通知 */}
           <Indicator inline size={16} offset={7} position="top-end" color="red" disabled={notificationCount === 0}>
             <ActionIcon
@@ -241,9 +242,9 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({ user }) => {
               >
                 设置
               </Menu.Item>
-              
+
               <Menu.Divider />
-              
+
               <Menu.Label>帮助与支持</Menu.Label>
               <Menu.Item
                 leftSection={<IconHelpCircle size={16} />}
@@ -251,9 +252,9 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({ user }) => {
               >
                 反馈与支持
               </Menu.Item>
-              
+
               <Menu.Divider />
-              
+
               <Menu.Item
                 leftSection={<IconLogout size={16} />}
                 color="red"
@@ -263,6 +264,27 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({ user }) => {
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>
+
+          <Group gap="xs">
+            <Button
+              variant="subtle"
+              size="sm"
+              component={Link}
+              to="/app/map-example"
+              leftSection={<MapPin size={16} />}
+            >
+              苹果地图
+            </Button>
+            <Button
+              variant="subtle"
+              size="sm"
+              component={Link}
+              to="/app/support"
+              leftSection={<MessageCircle size={16} />}
+            >
+              反馈
+            </Button>
+          </Group>
         </div>
       </div>
     </header>
