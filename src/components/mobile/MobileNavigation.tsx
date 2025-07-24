@@ -63,10 +63,28 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
           (mobileNavBottom as HTMLElement).style.zIndex = '9999';
         }
         
-        // 隐藏桌面端导航
+        // 隐藏桌面端导航（仅在移动端）
         const desktopHeaders = document.querySelectorAll('.nav-enhanced, .desktop-header, header.nav-enhanced');
         desktopHeaders.forEach(header => {
           (header as HTMLElement).style.display = 'none';
+        });
+      } else {
+        // 桌面端：隐藏移动端导航，显示桌面端导航
+        const mobileNavTop = document.querySelector('.mobile-nav-top');
+        const mobileNavBottom = document.querySelector('.mobile-nav-bottom');
+        
+        if (mobileNavTop) {
+          (mobileNavTop as HTMLElement).style.display = 'none';
+        }
+        
+        if (mobileNavBottom) {
+          (mobileNavBottom as HTMLElement).style.display = 'none';
+        }
+        
+        // 确保桌面端导航显示
+        const desktopHeaders = document.querySelectorAll('.nav-enhanced, .desktop-header, header.nav-enhanced');
+        desktopHeaders.forEach(header => {
+          (header as HTMLElement).style.display = 'block';
         });
       }
     };

@@ -37,10 +37,27 @@
   }
 }
 
-/* 桌面端确保移动端导航隐藏 */
+/* 桌面端确保移动端导航隐藏，桌面端导航显示 */
 @media (min-width: 768px) {
   .mobile-nav-top,
   .mobile-nav-bottom {
+    display: none !important;
+  }
+  
+  /* 确保桌面端导航正常显示 */
+  .nav-enhanced,
+  .desktop-header,
+  header.nav-enhanced {
+    display: block !important;
+  }
+  
+  /* 确保hidden md:block类正常工作 */
+  .hidden.md\\:block {
+    display: block !important;
+  }
+  
+  /* 确保md:hidden类正常工作 */
+  .md\\:hidden {
     display: none !important;
   }
 }
